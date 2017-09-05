@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dyn", "dyn\dyn.vcxproj", "{56F0A20F-BBEA-4CD0-B35A-0172237CCBC0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_dyn", "test_dyn\test_dyn.vcxproj", "{64347C63-7372-402E-B8C7-D83B5F37158E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{56F0A20F-BBEA-4CD0-B35A-0172237CCBC0} = {56F0A20F-BBEA-4CD0-B35A-0172237CCBC0}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{56F0A20F-BBEA-4CD0-B35A-0172237CCBC0}.Debug|x64.ActiveCfg = Debug|x64
+		{56F0A20F-BBEA-4CD0-B35A-0172237CCBC0}.Debug|x64.Build.0 = Debug|x64
+		{56F0A20F-BBEA-4CD0-B35A-0172237CCBC0}.Release|x64.ActiveCfg = Debug|x64
+		{56F0A20F-BBEA-4CD0-B35A-0172237CCBC0}.Release|x64.Build.0 = Debug|x64
+		{64347C63-7372-402E-B8C7-D83B5F37158E}.Debug|x64.ActiveCfg = Debug|x64
+		{64347C63-7372-402E-B8C7-D83B5F37158E}.Debug|x64.Build.0 = Debug|x64
+		{64347C63-7372-402E-B8C7-D83B5F37158E}.Release|x64.ActiveCfg = Debug|x64
+		{64347C63-7372-402E-B8C7-D83B5F37158E}.Release|x64.Build.0 = Debug|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {015E75EB-643B-4447-A48C-5885563774A7}
+	EndGlobalSection
+EndGlobal
