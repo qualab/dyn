@@ -29,3 +29,5 @@
 *.app
 *.suo
 .vs
+Debug
+Release

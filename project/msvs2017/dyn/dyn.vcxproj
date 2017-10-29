@@ -17,7 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\sources\object.cpp" />
-    <ClCompile Include="..\..\..\sources\scalar.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{56F0A20F-BBEA-4CD0-B35A-0172237CCBC0}</ProjectGuid>

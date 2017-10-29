@@ -14,17 +14,75 @@ namespace dyn
     public:
         scalar();
 
-        scalar(value_type value);
-        scalar& operator = (value_type value);
-
-        operator value_type () const;
-
-        bool operator ! () const;
+        scalar(const scalar& another);
+        scalar& operator = (const scalar& another);
 
         scalar(const object& another);
         scalar& operator = (const object& another);
 
+        scalar(value_type value);
+
+        scalar& operator = (value_type value);
+        operator value_type () const;
+
+        value_type value() const;
+        value_type& value();
+
+        bool operator ! () const;
+
+        bool operator == (const scalar& another) const;
+        bool operator != (const scalar& another) const;
+
+        bool operator <= (const scalar& another) const;
+        bool operator >= (const scalar& another) const;
+
+        bool operator < (const scalar& another) const;
+        bool operator > (const scalar& another) const;
+
+        scalar operator + (const scalar& another) const;
+        scalar operator - (const scalar& another) const;
+        scalar operator * (const scalar& another) const;
+        scalar operator / (const scalar& another) const;
+
+        scalar operator + () const;
+        scalar operator - () const;
+
+        scalar& operator += (const scalar& another);
+        scalar& operator -= (const scalar& another);
+        scalar& operator *= (const scalar& another);
+        scalar& operator /= (const scalar& another);
+
+        scalar& operator ++ ();
+        scalar& operator -- ();
+
+        scalar operator ++ (int);
+        scalar operator -- (int);
+
+        bool operator == (value_type another_value) const;
+        bool operator != (value_type another_value) const;
+
+        bool operator <= (value_type another_value) const;
+        bool operator >= (value_type another_value) const;
+
+        bool operator < (value_type another_value) const;
+        bool operator > (value_type another_value) const;
+
+        scalar operator + (value_type another_value) const;
+        scalar operator - (value_type another_value) const;
+        scalar operator * (value_type another_value) const;
+        scalar operator / (value_type another_value) const;
+
+        scalar& operator += (value_type another_value);
+        scalar& operator -= (value_type another_value);
+        scalar& operator *= (value_type another_value);
+        scalar& operator /= (value_type another_value);
+
         class data;
+
+        class not_same_type_exception;
+
+    protected:
+        virtual void reset() override;
 
     private:
         data* m_data;
@@ -41,6 +99,7 @@ namespace dyn
         virtual object::data* copy_to(void*) override;
 
         value_type get() const;
+        value_type& ref();
         void set(value_type value);
 
     private:
@@ -48,17 +107,58 @@ namespace dyn
     };
 
     template <typename value_type>
+    class scalar<value_type>::not_same_type_exception : public std::exception
+    {
+    public:
+        const char* what() const override;
+    };
+
+    template <typename value_type>
     scalar<value_type>::scalar()
         : m_data(nullptr)
     {
-        m_data = initialize(new(buffer()) data());
+        initialize(m_data);
+    }
+
+    template <typename value_type>
+    scalar<value_type>::scalar(const scalar<value_type>& another)
+        : m_data(nullptr)
+    {
+        initialize(m_data, another.value());
+    }
+
+    template <typename value_type>
+    scalar<value_type>& scalar<value_type>::operator = (const scalar<value_type>& another)
+    {
+        initialize(m_data, another.value());
+        return *this;
+    }
+
+    template <typename value_type>
+    scalar<value_type>::scalar(const object& another)
+        : m_data(nullptr)
+    {
+        const data* another_data = dynamic_cast<const data*>(another.m_data);
+        if (!another_data)
+            throw not_same_type_exception();
+        initialize(m_data, another_data->get());
+    }
+
+    template <typename value_type>
+    scalar<value_type>& scalar<value_type>::operator = (const object& another)
+    {
+        const data* another_data = dynamic_cast<const data*>(another.m_data);
+        if (!another_data)
+            throw not_same_type_exception();
+        set(another_data->get());
+        return *this;
     }
 
     template <typename value_type>
     scalar<value_type>::scalar(value_type value)
         : m_data(nullptr)
     {
-        m_data = initialize(new(buffer()) data(value));
+        initialize(m_data, value);
     }
 
     template <typename value_type>
@@ -71,30 +171,249 @@ namespace dyn
     template <typename value_type>
     scalar<value_type>::operator value_type () const
     {
+        return value();
+    }
+
+    template <typename value_type>
+    value_type scalar<value_type>::value() const
+    {
         return m_data->get();
+    }
+
+    template <typename value_type>
+    value_type& scalar<value_type>::value()
+    {
+        return m_data->ref();
+    }
+
+    template <typename value_type>
+    void scalar<value_type>::reset()
+    {
+        m_data = nullptr;
+        object::reset();
     }
 
     template <typename value_type>
     bool scalar<value_type>::operator ! () const
     {
-        return !m_data->get();
+        return !value();
     }
 
     template <typename value_type>
-    scalar<value_type>::scalar(const object& another)
-        : m_data(nullptr)
+    bool scalar<value_type>::operator == (const scalar<value_type>& another) const
     {
-        m_data = initialize(new(buffer()) data());
-        *this = another;
+        return value() == another.value();
     }
 
     template <typename value_type>
-    scalar<value_type>& scalar<value_type>::operator = (const object& another)
+    bool scalar<value_type>::operator != (const scalar<value_type>& another) const
     {
-        const data* another_data = dynamic_cast<const data*>(another.get_data());
-        if (!another_data)
-            std::runtime_error("Wrong type of object to initialize as such type of scalar.");
-        m_data->set(another_data->get());
+        return value() != another.value();
+    }
+
+    template <typename value_type>
+    bool scalar<value_type>::operator <= (const scalar<value_type>& another) const
+    {
+        return value() <= another.value();
+    }
+
+    template <typename value_type>
+    bool scalar<value_type>::operator >= (const scalar<value_type>& another) const
+    {
+        return value() >= another.value();
+    }
+
+    template <typename value_type>
+    bool scalar<value_type>::operator < (const scalar<value_type>& another) const
+    {
+        return value() < another.value();
+    }
+
+    template <typename value_type>
+    bool scalar<value_type>::operator > (const scalar<value_type>& another) const
+    {
+        return value() > another.value();
+    }
+
+    template <typename value_type>
+    scalar<value_type> scalar<value_type>::operator + (const scalar<value_type>& another) const
+    {
+        return scalar<value_type>(value() + another.value());
+    }
+
+    template <typename value_type>
+    scalar<value_type> scalar<value_type>::operator - (const scalar<value_type>& another) const
+    {
+        return scalar<value_type>(value() - another.value());
+    }
+
+    template <typename value_type>
+    scalar<value_type> scalar<value_type>::operator * (const scalar<value_type>& another) const
+    {
+        return scalar<value_type>(value() * another.value());
+    }
+
+    template <typename value_type>
+    scalar<value_type> scalar<value_type>::operator / (const scalar<value_type>& another) const
+    {
+        return scalar<value_type>(value() / another.value());
+    }
+
+    template <typename value_type>
+    scalar<value_type> scalar<value_type>::operator + () const
+    {
+        return scalar<value_type>(+value());
+    }
+
+    template <typename value_type>
+    scalar<value_type> scalar<value_type>::operator - () const
+    {
+        return scalar<value_type>(-value());
+    }
+
+    template <typename value_type>
+    scalar<value_type>& scalar<value_type>::operator += (const scalar<value_type>& another)
+    {
+        set(value() + another.value());
+        return *this;
+    }
+
+    template <typename value_type>
+    scalar<value_type>& scalar<value_type>::operator -= (const scalar<value_type>& another)
+    {
+        set(value() - another.value());
+        return *this;
+    }
+
+    template <typename value_type>
+    scalar<value_type>& scalar<value_type>::operator *= (const scalar<value_type>& another)
+    {
+        set(value() * another.value());
+        return *this;
+    }
+
+    template <typename value_type>
+    scalar<value_type>& scalar<value_type>::operator /= (const scalar<value_type>& another)
+    {
+        set(value() / another.value());
+        return *this;
+    }
+
+    template <typename value_type>
+    scalar<value_type>& scalar<value_type>::operator ++ ()
+    {
+        ++value();
+        return *this;
+    }
+
+    template <typename value_type>
+    scalar<value_type>& scalar<value_type>::operator -- ()
+    {
+        --value();
+        return *this;
+    }
+
+    template <typename value_type>
+    scalar<value_type> scalar<value_type>::operator ++ (int)
+    {
+        scalar<value_type> result(value());
+        ++value();
+        return *this;
+    }
+
+    template <typename value_type>
+    scalar<value_type> scalar<value_type>::operator -- (int)
+    {
+        scalar<value_type> result(value());
+        --value();
+        return *this;
+    }
+
+    template <typename value_type>
+    bool scalar<value_type>::operator == (value_type another_value) const
+    {
+        return value() == another_value;
+    }
+
+    template <typename value_type>
+    bool scalar<value_type>::operator != (value_type another_value) const
+    {
+        return value() != another_value;
+    }
+
+    template <typename value_type>
+    bool scalar<value_type>::operator <= (value_type another_value) const
+    {
+        return value() <= another_value;
+    }
+
+    template <typename value_type>
+    bool scalar<value_type>::operator >= (value_type another_value) const
+    {
+        return value() >= another_value;
+    }
+
+    template <typename value_type>
+    bool scalar<value_type>::operator < (value_type another_value) const
+    {
+        return value() < another_value;
+    }
+
+    template <typename value_type>
+    bool scalar<value_type>::operator > (value_type another_value) const
+    {
+        return value() > another_value;
+    }
+
+    template <typename value_type>
+    scalar<value_type> scalar<value_type>::operator + (value_type another_value) const
+    {
+        return scalar<value_type>(value() + another_value);
+    }
+
+    template <typename value_type>
+    scalar<value_type> scalar<value_type>::operator - (value_type another_value) const
+    {
+        return scalar<value_type>(value() - another_value);
+    }
+
+    template <typename value_type>
+    scalar<value_type> scalar<value_type>::operator * (value_type another_value) const
+    {
+        return scalar<value_type>(value() * another_value);
+    }
+
+    template <typename value_type>
+    scalar<value_type> scalar<value_type>::operator / (value_type another_value) const
+    {
+        return scalar<value_type>(value() / another_value);
+    }
+
+    template <typename value_type>
+    scalar<value_type>& scalar<value_type>::operator += (value_type another_value)
+    {
+        set(value() + another_value);
+        return *this;
+    }
+
+    template <typename value_type>
+    scalar<value_type>& scalar<value_type>::operator -= (value_type another_value)
+    {
+        set(value() - another_value);
+        return *this;
+    }
+
+    template <typename value_type>
+    scalar<value_type>& scalar<value_type>::operator *= (value_type another_value)
+    {
+        set(value() * another_value);
+        return *this;
+    }
+
+    template <typename value_type>
+    scalar<value_type>& scalar<value_type>::operator /= (value_type another_value)
+    {
+        set(value() / another_value);
         return *this;
     }
 
@@ -129,30 +448,22 @@ namespace dyn
     }
 
     template <typename value_type>
+    value_type& scalar<value_type>::data::ref()
+    {
+        return m_value;
+    }
+
+    template <typename value_type>
     void scalar<value_type>::data::set(value_type value)
     {
         m_value = value;
     }
 
-    template<> DYN_PUBLIC object& object::operator = (std::int64_t);
-    template<> DYN_PUBLIC object& object::operator = (std::int32_t);
-    template<> DYN_PUBLIC object& object::operator = (std::int16_t);
-    template<> DYN_PUBLIC object& object::operator = (std::int8_t);
-
-    template<> DYN_PUBLIC object& object::operator = (std::uint64_t);
-    template<> DYN_PUBLIC object& object::operator = (std::uint32_t);
-    template<> DYN_PUBLIC object& object::operator = (std::uint16_t);
-    template<> DYN_PUBLIC object& object::operator = (std::uint8_t);
-
-    template<> DYN_PUBLIC object& object::operator = (double);
-    template<> DYN_PUBLIC object& object::operator = (float);
-
-    template<> DYN_PUBLIC object& object::operator = (bool);
-
-    template<> DYN_PUBLIC object& object::operator = (char);
-    template<> DYN_PUBLIC object& object::operator = (wchar_t);
-
-    template<> DYN_PUBLIC object& object::operator = (std::nullptr_t);
+    template <typename value_type>
+    const char* scalar<value_type>::not_same_type_exception::what() const
+    {
+        return "Object data is not of the same value scalar type. Unable to instantiate scalar data.";
+    }
 }
 
 // Unicode signature: Владимир Керимов

@@ -26,8 +26,5 @@
     <ClCompile Include="..\..\..\sources\object.cpp">
       <Filter>sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\sources\scalar.cpp">
-      <Filter>sources</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

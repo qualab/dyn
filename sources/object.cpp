@@ -2,6 +2,7 @@
 
 #include <dyn/object.h>
 #include <stdexcept>
+#include <typeinfo>
 #include <utility>
 
 namespace dyn
@@ -13,8 +14,7 @@ namespace dyn
 
     object::~object()
     {
-        if (m_data)
-            m_data->~data();
+        reset();
     }
 
     object::object(const object& another)
@@ -56,17 +56,18 @@ namespace dyn
 
     bool object::is_null() const
     {
-        return m_data != nullptr;
+        return m_data == nullptr;
     }
 
-    object::data* object::initialize(object::data* derived)
+    const object::data* object::get_data() const
     {
-        if (static_cast<void*>(derived) != static_cast<void*>(m_buffer))
-            std::runtime_error("Unable to initialize the object by somehow instead of placement new into internal buffer.");
-        m_data = derived;
         return m_data;
     }
 
+    const char* object::data::name() const
+    {
+        return typeid(*this).name();
+    }
 }
 
 // Unicode signature: Владимир Керимов
