@@ -11,9 +11,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\tests\test.cpp" />
     <ClCompile Include="..\..\..\tests\test_dyn.cpp" />
     <ClCompile Include="..\..\..\tests\test_object.cpp" />
     <ClCompile Include="..\..\..\tests\test_scalar.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\tests\test.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{64347C63-7372-402E-B8C7-D83B5F37158E}</ProjectGuid>

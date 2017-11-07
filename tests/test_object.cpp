@@ -2,19 +2,14 @@
 
 #include <dyn/object.h>
 #include <string>
+#include "test.h"
 
 namespace dyn
 {
-    bool test_object(std::string& message)
+    TEST_SUITE(test_object)
     {
         object n;
-        if (!n.is_null())
-        {
-            message = "Null expected after default construcor of object.";
-            return false;
-        }
-
-        return true;
+        test::is_true(n.is_null(), "Null expected after default construcor of object.");
     }
 }
 

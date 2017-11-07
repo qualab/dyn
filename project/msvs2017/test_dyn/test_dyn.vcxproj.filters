@@ -4,10 +4,13 @@
     <ClCompile Include="..\..\..\tests\test_dyn.cpp">
       <Filter>tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\tests\test_object.cpp">
+    <ClCompile Include="..\..\..\tests\test_scalar.cpp">
       <Filter>tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\tests\test_scalar.cpp">
+    <ClCompile Include="..\..\..\tests\test.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\tests\test_object.cpp">
       <Filter>tests</Filter>
     </ClCompile>
   </ItemGroup>
@@ -15,5 +18,10 @@
     <Filter Include="tests">
       <UniqueIdentifier>{c93ff2c9-b561-42f5-88d7-11854e7bfb6a}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\tests\test.h">
+      <Filter>tests</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

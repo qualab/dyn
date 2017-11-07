@@ -6,6 +6,10 @@
 #include <exception>
 
 #ifndef DYN_OBJECT_MAX_DATA_SIZE
+// Class object uses internal memory block for its data
+// Memory for virtual table x64 pointer and 4 x64 fields
+// It is enough for decimal, vectors and quaternions
+// For matrices use reference type with shared instance
 #define DYN_OBJECT_MAX_DATA_SIZE 40
 #endif
 
