@@ -3,8 +3,7 @@
 #pragma once
 
 #include <dyn/object.h>
-#include <cstdint>
-#include <cstddef>
+#include <iostream>
 
 namespace dyn
 {
@@ -98,6 +97,8 @@ namespace dyn
         virtual object::data* move_to(void*) override;
         virtual object::data* copy_to(void*) override;
 
+        virtual void output(std::ostream& stream) const override;
+
         value_type get() const;
         value_type& ref();
         void set(value_type value);
@@ -117,20 +118,20 @@ namespace dyn
     scalar<value_type>::scalar()
         : m_data(nullptr)
     {
-        initialize(m_data);
+        m_data = initialize<data>();
     }
 
     template <typename value_type>
     scalar<value_type>::scalar(const scalar<value_type>& another)
         : m_data(nullptr)
     {
-        initialize(m_data, another.value());
+        m_data = initialize<data>(another.value());
     }
 
     template <typename value_type>
     scalar<value_type>& scalar<value_type>::operator = (const scalar<value_type>& another)
     {
-        initialize(m_data, another.value());
+        m_data = initialize<data>(another.value());
         return *this;
     }
 
@@ -141,7 +142,7 @@ namespace dyn
         const data* another_data = dynamic_cast<const data*>(another.m_data);
         if (!another_data)
             throw not_same_type_exception();
-        initialize(m_data, another_data->get());
+        m_data = initialize<data>(another_data->get());
     }
 
     template <typename value_type>
@@ -158,7 +159,7 @@ namespace dyn
     scalar<value_type>::scalar(value_type value)
         : m_data(nullptr)
     {
-        initialize(m_data, value);
+        m_data = initialize<data>(value);
     }
 
     template <typename value_type>
@@ -439,6 +440,12 @@ namespace dyn
     object::data* scalar<value_type>::data::move_to(void* buffer)
     {
         return new(buffer) data(std::move(*this));
+    }
+
+    template <typename value_type>
+    void scalar<value_type>::data::output(std::ostream& stream) const
+    {
+        stream << "scalar<" << typeid(value_type).name() << ">: " << m_value;
     }
 
     template <typename value_type>

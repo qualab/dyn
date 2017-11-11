@@ -4,6 +4,9 @@
 
 #include <dyn/public.h>
 #include <exception>
+#include <cstddef>
+#include <cstdint>
+#include <iosfwd>
 
 #ifndef DYN_OBJECT_MAX_DATA_SIZE
 // Class object uses internal memory block for its data
@@ -28,6 +31,7 @@ namespace dyn
         object& operator = (object&& temporary);
 
         bool is_null() const;
+        bool is_not_null() const;
 
         template <typename value_type>
         object(value_type value);
@@ -37,6 +41,8 @@ namespace dyn
 
         class data;
 
+        virtual void output_data(std::ostream& stream) const;
+
         static const size_t max_data_size = DYN_OBJECT_MAX_DATA_SIZE;
 
         template <class derived_data_type>
@@ -44,7 +50,7 @@ namespace dyn
 
     protected:
         template <class derived_data_type, typename... arg_list>
-        void initialize(derived_data_type*& derived_data, arg_list... arg);
+        derived_data_type* initialize(arg_list... arg);
 
         const data* get_data() const;
         virtual void reset();
@@ -54,6 +60,8 @@ namespace dyn
         data* m_data;
     };
 
+    DYN_PUBLIC std::ostream& operator << (std::ostream& stream, const object& argument);
+
     class DYN_PUBLIC object::data
     {
     public:
@@ -62,6 +70,8 @@ namespace dyn
 
         virtual data* move_to(void*) = 0;
         virtual data* copy_to(void*) = 0;
+
+        virtual void output(std::ostream& stream) const = 0;
 
         virtual const char* name() const;
     };
@@ -75,8 +85,9 @@ namespace dyn
 
     template <typename value_type>
     object::object(value_type value)
+        : m_data(nullptr)
     {
-        static_assert(false, "Cannot create object using value of this type to object. Implement template specification to accept such creation.");
+        *this = value;
     }
 
     template <typename value_type>
@@ -86,12 +97,14 @@ namespace dyn
     }
 
     template <typename derived_data_type, typename... arg_list>
-    void object::initialize(derived_data_type*& derived_data, arg_list... arg)
+    derived_data_type* object::initialize(arg_list... arg)
     {
+        derived_data_type* result = nullptr;
         reset();
         if (sizeof(derived_data_type) > max_data_size)
             throw data_size_exception<derived_data_type>();
-        m_data = derived_data = new(m_buffer) derived_data_type(arg...);
+        m_data = result = new(m_buffer) derived_data_type(arg...);
+        return result;
     }
 
     template <typename derived_data_type>
@@ -99,6 +112,21 @@ namespace dyn
     {
         return "Too big data to create instance within internal buffer. Use reference instance .";
     }
+
+    template <> DYN_PUBLIC object& object::operator = (std::int64_t);
+    template <> DYN_PUBLIC object& object::operator = (std::int32_t);
+    template <> DYN_PUBLIC object& object::operator = (std::int16_t);
+    template <> DYN_PUBLIC object& object::operator = (std::int8_t);
+
+    template <> DYN_PUBLIC object& object::operator = (std::uint64_t);
+    template <> DYN_PUBLIC object& object::operator = (std::uint32_t);
+    template <> DYN_PUBLIC object& object::operator = (std::uint16_t);
+    template <> DYN_PUBLIC object& object::operator = (std::uint8_t);
+
+    template <> DYN_PUBLIC object& object::operator = (double);
+    template <> DYN_PUBLIC object& object::operator = (float);
+
+    template <> DYN_PUBLIC object& object::operator = (std::nullptr_t);
 }
 
 // Unicode signature: Владимир Керимов

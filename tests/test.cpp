@@ -1,5 +1,6 @@
 ﻿// test scalar
 
+#include <dyn/object.h>
 #include <list>
 #include <memory>
 #include <string>
@@ -60,6 +61,34 @@ namespace dyn
                     output() << "OK";
                 output() << std::endl;
             }
+        );
+    }
+
+    void test::is_null(object argument, const std::string& description)
+    {
+        static const std::string DEFAULT_DESCRIPTION = "check is {} is null";
+        test::assert(
+            std::function<bool(object)>(
+            [&](object argument) -> bool
+            {
+                return argument.is_null();
+            }),
+            description.empty() ? DEFAULT_DESCRIPTION : description,
+            argument
+        );
+    }
+
+    void test::is_not_null(object argument, const std::string& description)
+    {
+        static const std::string DEFAULT_DESCRIPTION = "check is {} is not null";
+        test::assert(
+            std::function<bool(object)>(
+            [&](object argument) -> bool
+            {
+                return argument.is_not_null();
+            }),
+            description.empty() ? DEFAULT_DESCRIPTION : description,
+            argument
         );
     }
 

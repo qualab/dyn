@@ -1,5 +1,6 @@
 ﻿// test scalar
 
+#include <dyn/public.h>
 #include <functional>
 #include <exception>
 #include <iostream>
@@ -39,6 +40,9 @@ namespace dyn
 
         template <typename argument_type>
         static void is_false(const argument_type& argument, const std::string& description = "");
+
+        static void is_null(object argument, const std::string& description = "");
+        static void is_not_null(object argument, const std::string& description = "");
 
         template <typename left_argument_type, typename right_argument_type>
         static void equal(left_argument_type left_argument, right_argument_type right_argument, const std::string& description = "");
@@ -178,7 +182,7 @@ void test_suite_##suite_name::run()
     template <typename left_argument_type, typename right_argument_type>
     void test::equal(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
     {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} equal to {}";
+        static const std::string DEFAULT_DESCRIPTION = "check is {} == {}";
         test::assert(
             std::function<bool(left_argument_type, right_argument_type)>(
             [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
@@ -193,7 +197,7 @@ void test_suite_##suite_name::run()
     template <typename left_argument_type, typename right_argument_type>
     void test::not_equal(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
     {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} not equal to {}";
+        static const std::string DEFAULT_DESCRIPTION = "check is {} != {}";
         test::assert(
             std::function<bool(left_argument_type, right_argument_type)>(
             [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
@@ -208,7 +212,7 @@ void test_suite_##suite_name::run()
     template <typename left_argument_type, typename right_argument_type>
     void test::less(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
     {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} less than {}";
+        static const std::string DEFAULT_DESCRIPTION = "check is {} < {}";
         test::assert(
             std::function<bool(left_argument_type, right_argument_type)>(
             [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
@@ -223,7 +227,7 @@ void test_suite_##suite_name::run()
     template <typename left_argument_type, typename right_argument_type>
     void test::greater(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
     {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} greater than {}";
+        static const std::string DEFAULT_DESCRIPTION = "check is {} > {}";
         test::assert(
             std::function<bool(left_argument_type, right_argument_type)>(
             [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
@@ -238,7 +242,7 @@ void test_suite_##suite_name::run()
     template <typename left_argument_type, typename right_argument_type>
     void test::not_greater(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
     {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} not greater than {}";
+        static const std::string DEFAULT_DESCRIPTION = "check is {} <= {}";
         test::assert(
             std::function<bool(left_argument_type, right_argument_type)>(
             [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
@@ -253,7 +257,7 @@ void test_suite_##suite_name::run()
     template <typename left_argument_type, typename right_argument_type>
     void test::not_less(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
     {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} not less than {}";
+        static const std::string DEFAULT_DESCRIPTION = "check is {} >= {}";
         test::assert(
             std::function<bool(left_argument_type, right_argument_type)>(
             [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
