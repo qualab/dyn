@@ -79,10 +79,10 @@ namespace dyn
         static void not_less(left_argument_type left_argument, right_argument_type right_argument, const std::string& description = "");
 
         template <typename fail_type, typename result_type, typename ...argument_types>
-        static result_type no_exeption(const std::function<result_type(argument_types... arguments)>& action, argument_types... arguments);
+        static result_type no_exeption(std::function<result_type(argument_types... arguments)>&& action, argument_types... arguments);
 
         template <typename exception_type, typename fail_type, typename result_type, typename ...argument_types>
-        static void expect_exception(const std::function<result_type(argument_types... arguments)>& action, argument_types... arguments);
+        static void expect_exception(std::function<result_type(argument_types... arguments)>&& action, argument_types... arguments);
     };
 
     class test::suite
@@ -355,7 +355,7 @@ void test_suite_##suite_name::run()
     }
 
     template <typename fail_type, typename result_type, typename ...argument_types>
-    result_type test::no_exeption(const std::function<result_type(argument_types... arguments)>& action, argument_types... arguments)
+    result_type test::no_exeption(std::function<result_type(argument_types... arguments)>&& action, argument_types... arguments)
     {
         try
         {
@@ -372,7 +372,7 @@ void test_suite_##suite_name::run()
     }
 
     template <typename exception_type, typename fail_type, typename result_type, typename ...argument_types>
-    void test::expect_exception(const std::function<result_type(argument_types... arguments)>& action, argument_types... arguments)
+    void test::expect_exception(std::function<result_type(argument_types... arguments)>&& action, argument_types... arguments)
     {
         try
         {

@@ -6,6 +6,22 @@
 
 namespace dyn
 {
+    struct biggest_good
+    {
+        // object::max_data_size - sizeof(virtual table pointer)
+        static const size_t size = object::max_data_size - sizeof(void*);
+        char bytes[size];
+    };
+
+    struct least_bad
+    {
+        static const size_t size = biggest_good::size + 1;
+        char bytes[size];
+    };
+
+    template<> object& object::operator = (biggest_good) { return *this; }
+    template<> object& object::operator = (least_bad) { return *this; }
+
     TEST_SUITE(test_scalar)
     {
         scalar<int> i = 1234;
@@ -28,6 +44,20 @@ namespace dyn
 
         scalar<char> c = '*';
         test::equal<test::fail>(c, '*');
+
+        test::no_exeption<test::fail>(
+            std::function<void()>([&]()
+            {
+                scalar<biggest_good> good;
+            })
+        );
+
+        test::expect_exception<object::data_size_exception<scalar<least_bad>::data>, test::fail>(
+            std::function<void()>([&]()
+            {
+                scalar<least_bad> bad;
+            })
+        );
     }
 }
 
