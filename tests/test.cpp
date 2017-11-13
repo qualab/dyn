@@ -15,6 +15,13 @@ namespace dyn
     {
         std::list<test::suite*> test_suites;
         std::ostream* test_output = &std::cout;
+        thread_local std::list<std::unique_ptr<const test::fail>> test_fails;
+
+        template <typename fail_type, typename ...argument_types>
+        void register_fail(argument_types... arguments)
+        {
+            test_fails.push_back(std::make_unique<const fail_type>(arguments...));
+        }
     }
 
     void test::output(std::ostream& output)
@@ -39,56 +46,49 @@ namespace dyn
 
     void test::run()
     {
-        std::for_each(test_suites.begin(), test_suites.end(),
+        std::find_if(test_suites.begin(), test_suites.end(),
+            // return true to terminate test run
             [&](test::suite* current_suite)
             {
-                bool succeed = false;
+                bool stop_run = false;
+                output() << "RUNNING " << current_suite->name() << " - ";
                 try
                 {
-                    output() << "RUN \"" << current_suite->name() << "\" - ";
                     current_suite->run();
-                    succeed = true;
                 }
-                catch (test::fail& failed)
+                catch (test::fatal_error&)
                 {
-                    output() << "FAIL: " << failed.what();
+                    stop_run = true;
                 }
-                catch (std::exception& error)
+                catch (test::error&)
                 {
-                    output() << "ERROR: " << error.what();
                 }
-                if (succeed)
+                catch (std::exception& unexpected_exception)
+                {
+                    register_fail<test::unhandled_exception<test::error>>(unexpected_exception.what());
+                }
+                catch (...)
+                {
+                    register_fail<test::nonstandard_unhandled_exception<test::error>>();
+                }
+                if (test_fails.empty())
+                {
                     output() << "OK";
+                }
+                else
+                {
+                    output() << test_fails.back()->label();
+                    std::for_each(test_fails.begin(), test_fails.end(),
+                        [&](const std::unique_ptr<const test::fail>& failure)
+                        {
+                            output() << "\n !> " << failure->label() << ": " << failure->message();
+                        }
+                    );
+                    test_fails.clear();
+                }
                 output() << std::endl;
+                return stop_run;
             }
-        );
-    }
-
-    void test::is_null(object argument, const std::string& description)
-    {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} is null";
-        test::assert(
-            std::function<bool(object)>(
-            [&](object argument) -> bool
-            {
-                return argument.is_null();
-            }),
-            description.empty() ? DEFAULT_DESCRIPTION : description,
-            argument
-        );
-    }
-
-    void test::is_not_null(object argument, const std::string& description)
-    {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} is not null";
-        test::assert(
-            std::function<bool(object)>(
-            [&](object argument) -> bool
-            {
-                return argument.is_not_null();
-            }),
-            description.empty() ? DEFAULT_DESCRIPTION : description,
-            argument
         );
     }
 
@@ -102,8 +102,7 @@ namespace dyn
     {
     }
 
-    test::fail::fail(std::string&& message)
-        : m_message(std::move(message))
+    test::fail::~fail()
     {
     }
 
@@ -115,6 +114,48 @@ namespace dyn
     const std::string& test::fail::message() const
     {
         return m_message;
+    }
+
+    const char* test::fail::label() const
+    {
+        return "FAIL";
+    }
+
+    void test::fail::handle() const
+    {
+        register_fail<test::fail>(*this);
+    }
+
+    test::error::error(const std::string& message)
+        : test::fail(message)
+    {
+    }
+
+    const char* test::error::label() const
+    {
+        return "ERROR";
+    }
+
+    void test::error::handle() const
+    {
+        register_fail<test::error>(*this);
+        throw *this;
+    }
+
+    test::fatal_error::fatal_error(const std::string& message)
+        : test::error(message)
+    {
+    }
+
+    const char* test::fatal_error::label() const
+    {
+        return "FATAL ERROR";
+    }
+
+    void test::fatal_error::handle() const
+    {
+        register_fail<test::fatal_error>(*this);
+        throw *this;
     }
 }
 

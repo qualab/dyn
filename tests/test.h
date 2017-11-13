@@ -3,6 +3,7 @@
 #include <dyn/public.h>
 #include <functional>
 #include <exception>
+#include <typeinfo>
 #include <iostream>
 #include <utility>
 #include <sstream>
@@ -14,10 +15,19 @@ namespace dyn
     {
     public:
         class suite;
-        class fail;
 
-        template <class exception_type>
-        class exception_expected_type;
+        class fail;         // fails single check
+        class error;        // fails suite run
+        class fatal_error;  // fails whole test run
+
+        template <typename fail_type>
+        class unhandled_exception;
+
+        template <typename fail_type>
+        class nonstandard_unhandled_exception;
+
+        template <typename exception_type, typename fail_type>
+        class exception_expected;
 
         static void output(std::ostream& output);
         static std::ostream& output();
@@ -25,7 +35,7 @@ namespace dyn
         static void add(suite* new_suite);
         static void run();
 
-        template <typename ...argument_types>
+        template <typename fail_type, typename ...argument_types>
         static void assert(const std::function<bool(argument_types... arguments)>& predicate,
             const std::string& description, argument_types... arguments);
 
@@ -35,41 +45,47 @@ namespace dyn
         static void output_description(std::ostream& output_stream, const std::string& description,
             next_argument_type next_argument, argument_types... argument);
 
-        template <typename argument_type>
+        template <typename fail_type, typename ...argument_types>
+        static void handle_fail(argument_types... arguments);
+
+        template <typename fail_type, typename argument_type>
         static void is_true(const argument_type& argument, const std::string& description = "");
 
-        template <typename argument_type>
+        template <typename fail_type, typename argument_type>
         static void is_false(const argument_type& argument, const std::string& description = "");
 
+        template <typename fail_type>
         static void is_null(object argument, const std::string& description = "");
+
+        template <typename fail_type>
         static void is_not_null(object argument, const std::string& description = "");
 
-        template <typename left_argument_type, typename right_argument_type>
+        template <typename fail_type, typename left_argument_type, typename right_argument_type>
         static void equal(left_argument_type left_argument, right_argument_type right_argument, const std::string& description = "");
 
-        template <typename left_argument_type, typename right_argument_type>
+        template <typename fail_type, typename left_argument_type, typename right_argument_type>
         static void not_equal(left_argument_type left_argument, right_argument_type right_argument, const std::string& description = "");
 
-        template <typename left_argument_type, typename right_argument_type>
+        template <typename fail_type, typename left_argument_type, typename right_argument_type>
         static void less(left_argument_type left_argument, right_argument_type right_argument, const std::string& description = "");
 
-        template <typename left_argument_type, typename right_argument_type>
+        template <typename fail_type, typename left_argument_type, typename right_argument_type>
         static void greater(left_argument_type left_argument, right_argument_type right_argument, const std::string& description = "");
 
-        template <typename left_argument_type, typename right_argument_type>
+        template <typename fail_type, typename left_argument_type, typename right_argument_type>
         static void not_greater(left_argument_type left_argument, right_argument_type right_argument, const std::string& description = "");
 
-        template <typename left_argument_type, typename right_argument_type>
+        template <typename fail_type, typename left_argument_type, typename right_argument_type>
         static void not_less(left_argument_type left_argument, right_argument_type right_argument, const std::string& description = "");
 
-        template <typename result_type, typename ...argument_types>
+        template <typename fail_type, typename result_type, typename ...argument_types>
         static result_type no_exeption(const std::function<result_type(argument_types... arguments)>& action, argument_types... arguments);
 
-        template <typename exception_type, typename result_type, typename ...argument_types>
+        template <typename exception_type, typename fail_type, typename result_type, typename ...argument_types>
         static void expect_exception(const std::function<result_type(argument_types... arguments)>& action, argument_types... arguments);
     };
 
-    class test::suite   
+    class test::suite
     {
     public:
         suite();
@@ -91,23 +107,56 @@ void test_suite_##suite_name::run()
     {
     public:
         fail(const std::string& message);
-        fail(std::string&& message);
+        virtual ~fail();
 
         virtual const char* what() const override;
         virtual const std::string& message() const;
+
+        virtual const char* label() const;
+        virtual void handle() const;
 
     private:
         std::string m_message;
     };
 
-    template <typename exception_type>
-    class exception_expected_type : public fail
+    class test::error : public test::fail
     {
     public:
-        exception_expected_type();
+        error(const std::string& message);
+        virtual const char* label() const override;
+        virtual void handle() const override;
     };
 
-    template <typename ...argument_types>
+    class test::fatal_error : public test::error
+    {
+    public:
+        fatal_error(const std::string& message);
+        virtual const char* label() const override;
+        virtual void handle() const override;
+    };
+
+    template <typename fail_type>
+    class test::unhandled_exception : public fail_type
+    {
+    public:
+        unhandled_exception(const std::string& message);
+    };
+
+    template <typename fail_type>
+    class test::nonstandard_unhandled_exception : public test::unhandled_exception<fail_type>
+    {
+    public:
+        nonstandard_unhandled_exception();
+    };
+
+    template <typename exception_type, typename fail_type>
+    class test::exception_expected : public fail_type
+    {
+    public:
+        exception_expected();
+    };
+
+    template <typename fail_type, typename ...argument_types>
     void test::assert(const std::function<bool(argument_types... arguments)>& predicate, const std::string& description, argument_types... arguments)
     {
         bool complete = false;
@@ -115,25 +164,24 @@ void test_suite_##suite_name::run()
         {
             complete = predicate(arguments...);
         }
-        catch (std::exception& unhandled_exception)
+        catch (std::exception& unexpected_exception)
         {
-            std::stringstream message_stream;
-            message_stream << "Unhandled exception: \"" << unhandled_exception.what()
-                << "\" due execution of ";
-            output_description(message_stream, description, arguments...);
-            throw fail(message_stream.str());
+            test::handle_fail<test::unhandled_exception<test::error>>(unexpected_exception.what());
+        }
+        catch (...)
+        {
+            test::handle_fail<test::nonstandard_unhandled_exception<test::error>>();
         }
         if (!complete)
         {
             std::stringstream message_stream;
-            message_stream << "Failed ";
-            output_description(message_stream, description, arguments...);
-            throw fail(message_stream.str());
+            test::output_description(message_stream, description, arguments...);
+            test::handle_fail<fail_type>(message_stream.str());
         }
     }
 
     template <typename next_argument_type, typename ...argument_types>
-    static void test::output_description(std::ostream& output_stream, const std::string& description,
+    void test::output_description(std::ostream& output_stream, const std::string& description,
         next_argument_type next_argument, argument_types ...arguments)
     {
         static const std::string PLACEMENT = "{}";
@@ -143,17 +191,24 @@ void test_suite_##suite_name::run()
             std::string before = description.substr(0, end);
             output_stream << before << next_argument;
             std::string after = description.substr(end + PLACEMENT.size());
-            output_description(output_stream, after, arguments...);
+            test::output_description(output_stream, after, arguments...);
         }
         else
             output_stream << description;
     }
 
-    template <typename argument_type>
+    template <typename fail_type, typename ...argument_types>
+    void test::handle_fail(argument_types... arguments)
+    {
+        fail_type failure(arguments...);
+        failure.handle();
+    }
+
+    template <typename fail_type, typename argument_type>
     void test::is_true(const argument_type& argument, const std::string& description)
     {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} true";
-        test::assert(
+        static const std::string DEFAULT_DESCRIPTION = "check {} is true";
+        test::assert<fail_type>(
             std::function<bool(argument_type)>(
             [&](argument_type argument) -> bool
             {
@@ -164,11 +219,11 @@ void test_suite_##suite_name::run()
         );
     }
 
-    template <typename argument_type>
+    template <typename fail_type, typename argument_type>
     void test::is_false(const argument_type& argument, const std::string& description)
     {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} false";
-        test::assert(
+        static const std::string DEFAULT_DESCRIPTION = "check {} is false";
+        test::assert<fail_type>(
             std::function<bool(argument_type)>(
             [&](argument_type argument) -> bool
             {
@@ -179,11 +234,11 @@ void test_suite_##suite_name::run()
         );
     }
 
-    template <typename left_argument_type, typename right_argument_type>
+    template <typename fail_type, typename left_argument_type, typename right_argument_type>
     void test::equal(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
     {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} == {}";
-        test::assert(
+        static const std::string DEFAULT_DESCRIPTION = "check {} == {}";
+        test::assert<fail_type>(
             std::function<bool(left_argument_type, right_argument_type)>(
             [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
             {
@@ -194,11 +249,11 @@ void test_suite_##suite_name::run()
         );
     }
 
-    template <typename left_argument_type, typename right_argument_type>
+    template <typename fail_type, typename left_argument_type, typename right_argument_type>
     void test::not_equal(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
     {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} != {}";
-        test::assert(
+        static const std::string DEFAULT_DESCRIPTION = "check {} != {}";
+        test::assert<fail_type>(
             std::function<bool(left_argument_type, right_argument_type)>(
             [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
             {
@@ -209,11 +264,11 @@ void test_suite_##suite_name::run()
         );
     }
 
-    template <typename left_argument_type, typename right_argument_type>
+    template <typename fail_type, typename left_argument_type, typename right_argument_type>
     void test::less(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
     {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} < {}";
-        test::assert(
+        static const std::string DEFAULT_DESCRIPTION = "check {} < {}";
+        test::assert<fail_type>(
             std::function<bool(left_argument_type, right_argument_type)>(
             [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
             {
@@ -224,11 +279,11 @@ void test_suite_##suite_name::run()
         );
     }
 
-    template <typename left_argument_type, typename right_argument_type>
+    template <typename fail_type, typename left_argument_type, typename right_argument_type>
     void test::greater(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
     {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} > {}";
-        test::assert(
+        static const std::string DEFAULT_DESCRIPTION = "check {} > {}";
+        test::assert<fail_type>(
             std::function<bool(left_argument_type, right_argument_type)>(
             [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
             {
@@ -239,11 +294,11 @@ void test_suite_##suite_name::run()
         );
     }
 
-    template <typename left_argument_type, typename right_argument_type>
+    template <typename fail_type, typename left_argument_type, typename right_argument_type>
     void test::not_greater(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
     {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} <= {}";
-        test::assert(
+        static const std::string DEFAULT_DESCRIPTION = "check {} <= {}";
+        test::assert<fail_type>(
             std::function<bool(left_argument_type, right_argument_type)>(
             [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
             {
@@ -254,11 +309,11 @@ void test_suite_##suite_name::run()
         );
     }
 
-    template <typename left_argument_type, typename right_argument_type>
+    template <typename fail_type, typename left_argument_type, typename right_argument_type>
     void test::not_less(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
     {
-        static const std::string DEFAULT_DESCRIPTION = "check is {} >= {}";
-        test::assert(
+        static const std::string DEFAULT_DESCRIPTION = "check {} >= {}";
+        test::assert<fail_type>(
             std::function<bool(left_argument_type, right_argument_type)>(
             [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
             {
@@ -269,25 +324,54 @@ void test_suite_##suite_name::run()
         );
     }
 
-    template <typename result_type, typename ...argument_types>
+    template <typename fail_type>
+    void test::is_null(object argument, const std::string& description)
+    {
+        static const std::string DEFAULT_DESCRIPTION = "check {} is null";
+        test::assert<fail_type>(
+            std::function<bool(object)>(
+            [&](object argument) -> bool
+            {
+                return argument.is_null();
+            }),
+            description.empty() ? DEFAULT_DESCRIPTION : description,
+            argument
+        );
+    }
+
+    template <typename fail_type>
+    void test::is_not_null(object argument, const std::string& description)
+    {
+        static const std::string DEFAULT_DESCRIPTION = "check {} is not null";
+        test::assert<fail_type>(
+            std::function<bool(object)>(
+            [&](object argument) -> bool
+            {
+                return argument.is_not_null();
+            }),
+            description.empty() ? DEFAULT_DESCRIPTION : description,
+            argument
+        );
+    }
+
+    template <typename fail_type, typename result_type, typename ...argument_types>
     result_type test::no_exeption(const std::function<result_type(argument_types... arguments)>& action, argument_types... arguments)
     {
-        static const std::string FAIL_MESSAGE = "No exception expected, but exception caught. ";
         try
         {
             return action(arguments...);
         }
         catch (std::exception& unexpected_exception)
         {
-            throw fail(FAIL_MESSAGE + unexpected_exception.what());
+            test::handle_fail<test::unhandled_exception<fail_type>>(unexpected_exception.what());
         }
         catch (...)
         {
-            throw fail(FAIL_MESSAGE);
+            test::handle_fail<test::nonstandard_unhandled_exception<fail_type>>();
         }
     }
 
-    template <typename exception_type, typename result_type, typename ...argument_types>
+    template <typename exception_type, typename fail_type, typename result_type, typename ...argument_types>
     void test::expect_exception(const std::function<result_type(argument_types... arguments)>& action, argument_types... arguments)
     {
         try
@@ -298,15 +382,32 @@ void test_suite_##suite_name::run()
         {
             return;
         }
+        catch (std::exception& unexpected_exception)
+        {
+            test::handle_fail<test::unhandled_exception<test::error>>(unexpected_exception.what());
+        }
         catch (...)
         {
+            test::handle_fail<test::nonstandard_unhandled_exception<test::error>>();
         }
-        throw exception_expected_type<exception_type>();
+        throw exception_expected<exception_type, fail_type>();
     }
 
-    template <typename exception_type>
-    exception_expected_type<exception_type>::exception_expected_type()
-        : fail("Exception expected of the type specified, but not been caught.")
+    template <typename exception_type, typename fail_type>
+    test::exception_expected<exception_type, fail_type>::exception_expected()
+        : fail_type("expected exception of type " + std::string(typeid(exception_type).name()))
+    {
+    }
+
+    template <typename fail_type>
+    test::unhandled_exception<fail_type>::unhandled_exception(const std::string &message)
+        : fail_type("UNHANDLED EXCEPTION: " + message)
+    {
+    }
+
+    template <typename fail_type>
+    test::nonstandard_unhandled_exception<fail_type>::nonstandard_unhandled_exception()
+        : unhandled_exception("non-standard exception class")
     {
     }
 }
