@@ -239,10 +239,11 @@ void test_suite_##suite_name::run()
         static const std::string DEFAULT_DESCRIPTION = "check {} is true";
         test::assert<fail_type>(
             std::function<bool(const argument_type&)>(
-            [](const argument_type& argument) -> bool
-            {
-                return argument ? true : false;
-            }),
+                [](const argument_type& argument) -> bool
+                {
+                    return argument ? true : false;
+                }
+            ),
             description.empty() ? DEFAULT_DESCRIPTION : description,
             argument
         );
@@ -255,10 +256,45 @@ void test_suite_##suite_name::run()
         static const std::string DEFAULT_DESCRIPTION = "check {} is false";
         test::assert<fail_type>(
             std::function<bool(const argument_type&)>(
-            [](const argument_type& argument) -> bool
-            {
-                return argument ? false : true;
-            }),
+                [](const argument_type& argument) -> bool
+                {
+                    return argument ? false : true;
+                }
+            ),
+            description.empty() ? DEFAULT_DESCRIPTION : description,
+            argument
+        );
+    }
+
+    template <typename fail_type, typename argument_type>
+    void test::is_null(const argument_type& argument,
+                       const std::string& description)
+    {
+        static const std::string DEFAULT_DESCRIPTION = "check {} is null";
+        test::assert<fail_type>(
+            std::function<bool(const argument_type&)>(
+                [&](const argument_type& argument) -> bool
+                {
+                    return argument.is_null();
+                }
+            ),
+            description.empty() ? DEFAULT_DESCRIPTION : description,
+            argument
+        );
+    }
+
+    template <typename fail_type, typename argument_type>
+    void test::is_not_null(const argument_type& argument,
+                           const std::string& description)
+    {
+        static const std::string DEFAULT_DESCRIPTION = "check {} is not null";
+        test::assert<fail_type>(
+            std::function<bool(const argument_type&)>(
+                [](const argument_type& argument) -> bool
+                {
+                    return argument.is_not_null();
+                }
+            ),
             description.empty() ? DEFAULT_DESCRIPTION : description,
             argument
         );
@@ -272,10 +308,11 @@ void test_suite_##suite_name::run()
         static const std::string DEFAULT_DESCRIPTION = "check {} == {}";
         test::assert<fail_type>(
             std::function<bool(const left_argument_type&, const right_argument_type&)>(
-            [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
-            {
-                return left_argument == right_argument;
-            }),
+                [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
+                {
+                    return left_argument == right_argument;
+                }
+            ),
             description.empty() ? DEFAULT_DESCRIPTION : description,
             left_argument, right_argument
         );
@@ -289,10 +326,11 @@ void test_suite_##suite_name::run()
         static const std::string DEFAULT_DESCRIPTION = "check {} != {}";
         test::assert<fail_type>(
             std::function<bool(const left_argument_type&, const right_argument_type&)>(
-            [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
-            {
-                return left_argument != right_argument;
-            }),
+                [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
+                {
+                    return left_argument != right_argument;
+                }
+            ),
             description.empty() ? DEFAULT_DESCRIPTION : description,
             left_argument, right_argument
         );
@@ -306,10 +344,11 @@ void test_suite_##suite_name::run()
         static const std::string DEFAULT_DESCRIPTION = "check {} < {}";
         test::assert<fail_type>(
             std::function<bool(const left_argument_type&, const right_argument_type&)>(
-            [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
-            {
-                return left_argument < right_argument;
-            }),
+                [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
+                {
+                    return left_argument < right_argument;
+                }
+            ),
             description.empty() ? DEFAULT_DESCRIPTION : description,
             left_argument, right_argument
         );
@@ -323,10 +362,11 @@ void test_suite_##suite_name::run()
         static const std::string DEFAULT_DESCRIPTION = "check {} > {}";
         test::assert<fail_type>(
             std::function<bool(const left_argument_type&, const right_argument_type&)>(
-            [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
-            {
-                return left_argument > right_argument;
-            }),
+                [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
+                {
+                    return left_argument > right_argument;
+                }
+            ),
             description.empty() ? DEFAULT_DESCRIPTION : description,
             left_argument, right_argument
         );
@@ -340,10 +380,11 @@ void test_suite_##suite_name::run()
         static const std::string DEFAULT_DESCRIPTION = "check {} <= {}";
         test::assert<fail_type>(
             std::function<bool(const left_argument_type&, const right_argument_type&)>(
-            [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
-            {
-                return left_argument <= right_argument;
-            }),
+                [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
+                {
+                    return left_argument <= right_argument;
+                }
+            ),
             description.empty() ? DEFAULT_DESCRIPTION : description,
             left_argument, right_argument
         );
@@ -357,44 +398,13 @@ void test_suite_##suite_name::run()
         static const std::string DEFAULT_DESCRIPTION = "check {} >= {}";
         test::assert<fail_type>(
             std::function<bool(const left_argument_type&, const right_argument_type&)>(
-            [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
-            {
-                return left_argument >= right_argument;
-            }),
+                [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
+                {
+                    return left_argument >= right_argument;
+                }
+            ),
             description.empty() ? DEFAULT_DESCRIPTION : description,
             left_argument, right_argument
-        );
-    }
-
-    template <typename fail_type, typename argument_type>
-    void test::is_null(const argument_type& argument,
-                       const std::string& description)
-    {
-        static const std::string DEFAULT_DESCRIPTION = "check {} is null";
-        test::assert<fail_type>(
-            std::function<bool(const argument_type&)>(
-            [&](const argument_type& argument) -> bool
-            {
-                return argument.is_null();
-            }),
-            description.empty() ? DEFAULT_DESCRIPTION : description,
-            argument
-        );
-    }
-
-    template <typename fail_type, typename argument_type>
-    void test::is_not_null(const argument_type& argument,
-                           const std::string& description)
-    {
-        static const std::string DEFAULT_DESCRIPTION = "check {} is not null";
-        test::assert<fail_type>(
-            std::function<bool(const argument_type&)>(
-            [](const argument_type& argument) -> bool
-            {
-                return argument.is_not_null();
-            }),
-            description.empty() ? DEFAULT_DESCRIPTION : description,
-            argument
         );
     }
 
