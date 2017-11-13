@@ -35,54 +35,76 @@ namespace dyn
         static void add(suite* new_suite);
         static void run();
 
-        template <typename fail_type, typename ...argument_types>
-        static void assert(const std::function<bool(argument_types... arguments)>& predicate,
-            const std::string& description, argument_types... arguments);
+        template <typename fail_type, typename... argument_types>
+        static void assert(const std::function<bool(const argument_types&... arguments)>& predicate,
+                           const std::string& description,
+                           const argument_types&... arguments);
 
-        static void output_description(std::ostream& output_stream, const std::string& description);
+        static void output_description(std::ostream& output_stream,
+                                       const std::string& description);
 
         template <typename next_argument_type, typename ...argument_types>
-        static void output_description(std::ostream& output_stream, const std::string& description,
-            next_argument_type next_argument, argument_types... argument);
+        static void output_description(std::ostream& output_stream,
+                                       const std::string& description,
+                                       const next_argument_type& next_argument,
+                                       const argument_types&... arguments);
 
         template <typename fail_type, typename ...argument_types>
-        static void handle_fail(argument_types... arguments);
+        static void handle_fail(const argument_types&... arguments);
 
         template <typename fail_type, typename argument_type>
-        static void is_true(const argument_type& argument, const std::string& description = "");
+        static void is_true(const argument_type& argument,
+                            const std::string& description = "");
 
         template <typename fail_type, typename argument_type>
-        static void is_false(const argument_type& argument, const std::string& description = "");
+        static void is_false(const argument_type& argument,
+                             const std::string& description = "");
 
-        template <typename fail_type>
-        static void is_null(object argument, const std::string& description = "");
+        template <typename fail_type, typename argument_type>
+        static void is_null(const argument_type& argument,
+                            const std::string& description = "");
 
-        template <typename fail_type>
-        static void is_not_null(object argument, const std::string& description = "");
-
-        template <typename fail_type, typename left_argument_type, typename right_argument_type>
-        static void equal(left_argument_type left_argument, right_argument_type right_argument, const std::string& description = "");
-
-        template <typename fail_type, typename left_argument_type, typename right_argument_type>
-        static void not_equal(left_argument_type left_argument, right_argument_type right_argument, const std::string& description = "");
+        template <typename fail_type, typename argument_type>
+        static void is_not_null(const argument_type& argument,
+                                const std::string& description = "");
 
         template <typename fail_type, typename left_argument_type, typename right_argument_type>
-        static void less(left_argument_type left_argument, right_argument_type right_argument, const std::string& description = "");
+        static void equal(const left_argument_type& left_argument,
+                          const right_argument_type& right_argument,
+                          const std::string& description = "");
 
         template <typename fail_type, typename left_argument_type, typename right_argument_type>
-        static void greater(left_argument_type left_argument, right_argument_type right_argument, const std::string& description = "");
+        static void not_equal(const left_argument_type& left_argument,
+                              const right_argument_type& right_argument,
+                              const std::string& description = "");
 
         template <typename fail_type, typename left_argument_type, typename right_argument_type>
-        static void not_greater(left_argument_type left_argument, right_argument_type right_argument, const std::string& description = "");
+        static void less(const left_argument_type& left_argument,
+                         const right_argument_type& right_argument,
+                         const std::string& description = "");
 
         template <typename fail_type, typename left_argument_type, typename right_argument_type>
-        static void not_less(left_argument_type left_argument, right_argument_type right_argument, const std::string& description = "");
+        static void greater(const left_argument_type& left_argument,
+                            const right_argument_type& right_argument,
+                            const std::string& description = "");
+
+        template <typename fail_type, typename left_argument_type, typename right_argument_type>
+        static void not_greater(const left_argument_type& left_argument,
+                                const right_argument_type& right_argument,
+                                const std::string& description = "");
+
+        template <typename fail_type, typename left_argument_type, typename right_argument_type>
+        static void not_less(const left_argument_type& left_argument,
+                             const right_argument_type& right_argument,
+                             const std::string& description = "");
 
         template <typename fail_type, typename result_type, typename ...argument_types>
-        static result_type no_exeption(std::function<result_type(argument_types... arguments)>&& action, argument_types... arguments);
+        static result_type no_exeption(const std::function<result_type(const argument_types&... arguments)>& action,
+                                       const argument_types&... arguments);
 
         template <typename exception_type, typename fail_type, typename result_type, typename ...argument_types>
-        static void expect_exception(std::function<result_type(argument_types... arguments)>&& action, argument_types... arguments);
+        static void expect_exception(const std::function<result_type(const argument_types&... arguments)>& action,
+                                     const argument_types&... arguments);
     };
 
     class test::suite
@@ -156,8 +178,10 @@ void test_suite_##suite_name::run()
         exception_expected();
     };
 
-    template <typename fail_type, typename ...argument_types>
-    void test::assert(const std::function<bool(argument_types... arguments)>& predicate, const std::string& description, argument_types... arguments)
+    template <typename fail_type, typename... argument_types>
+    void test::assert(const std::function<bool(const argument_types&... arguments)>& predicate,
+                      const std::string& description,
+                      const argument_types&... arguments)
     {
         bool complete = false;
         try
@@ -180,9 +204,11 @@ void test_suite_##suite_name::run()
         }
     }
 
-    template <typename next_argument_type, typename ...argument_types>
-    void test::output_description(std::ostream& output_stream, const std::string& description,
-        next_argument_type next_argument, argument_types ...arguments)
+    template <typename next_argument_type, typename... argument_types>
+    void test::output_description(std::ostream& output_stream,
+                                  const std::string& description,
+                                  const next_argument_type& next_argument,
+                                  const argument_types&... arguments)
     {
         static const std::string PLACEMENT = "{}";
         size_t end = description.find(PLACEMENT);
@@ -194,23 +220,26 @@ void test_suite_##suite_name::run()
             test::output_description(output_stream, after, arguments...);
         }
         else
+        {
             output_stream << description;
+        }
     }
 
     template <typename fail_type, typename ...argument_types>
-    void test::handle_fail(argument_types... arguments)
+    void test::handle_fail(const argument_types&... arguments)
     {
         fail_type failure(arguments...);
         failure.handle();
     }
 
     template <typename fail_type, typename argument_type>
-    void test::is_true(const argument_type& argument, const std::string& description)
+    void test::is_true(const argument_type& argument,
+                       const std::string& description)
     {
         static const std::string DEFAULT_DESCRIPTION = "check {} is true";
         test::assert<fail_type>(
-            std::function<bool(argument_type)>(
-            [&](argument_type argument) -> bool
+            std::function<bool(const argument_type&)>(
+            [](const argument_type& argument) -> bool
             {
                 return argument ? true : false;
             }),
@@ -220,12 +249,13 @@ void test_suite_##suite_name::run()
     }
 
     template <typename fail_type, typename argument_type>
-    void test::is_false(const argument_type& argument, const std::string& description)
+    void test::is_false(const argument_type& argument,
+                        const std::string& description)
     {
         static const std::string DEFAULT_DESCRIPTION = "check {} is false";
         test::assert<fail_type>(
-            std::function<bool(argument_type)>(
-            [&](argument_type argument) -> bool
+            std::function<bool(const argument_type&)>(
+            [](const argument_type& argument) -> bool
             {
                 return argument ? false : true;
             }),
@@ -235,12 +265,14 @@ void test_suite_##suite_name::run()
     }
 
     template <typename fail_type, typename left_argument_type, typename right_argument_type>
-    void test::equal(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
+    void test::equal(const left_argument_type& left_argument,
+                     const right_argument_type& right_argument,
+                     const std::string& description)
     {
         static const std::string DEFAULT_DESCRIPTION = "check {} == {}";
         test::assert<fail_type>(
-            std::function<bool(left_argument_type, right_argument_type)>(
-            [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
+            std::function<bool(const left_argument_type&, const right_argument_type&)>(
+            [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
             {
                 return left_argument == right_argument;
             }),
@@ -250,12 +282,14 @@ void test_suite_##suite_name::run()
     }
 
     template <typename fail_type, typename left_argument_type, typename right_argument_type>
-    void test::not_equal(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
+    void test::not_equal(const left_argument_type& left_argument,
+                         const right_argument_type& right_argument,
+                         const std::string& description)
     {
         static const std::string DEFAULT_DESCRIPTION = "check {} != {}";
         test::assert<fail_type>(
-            std::function<bool(left_argument_type, right_argument_type)>(
-            [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
+            std::function<bool(const left_argument_type&, const right_argument_type&)>(
+            [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
             {
                 return left_argument != right_argument;
             }),
@@ -265,12 +299,14 @@ void test_suite_##suite_name::run()
     }
 
     template <typename fail_type, typename left_argument_type, typename right_argument_type>
-    void test::less(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
+    void test::less(const left_argument_type& left_argument,
+                    const right_argument_type& right_argument,
+                    const std::string& description)
     {
         static const std::string DEFAULT_DESCRIPTION = "check {} < {}";
         test::assert<fail_type>(
-            std::function<bool(left_argument_type, right_argument_type)>(
-            [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
+            std::function<bool(const left_argument_type&, const right_argument_type&)>(
+            [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
             {
                 return left_argument < right_argument;
             }),
@@ -280,12 +316,14 @@ void test_suite_##suite_name::run()
     }
 
     template <typename fail_type, typename left_argument_type, typename right_argument_type>
-    void test::greater(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
+    void test::greater(const left_argument_type& left_argument,
+                       const right_argument_type& right_argument,
+                       const std::string& description)
     {
         static const std::string DEFAULT_DESCRIPTION = "check {} > {}";
         test::assert<fail_type>(
-            std::function<bool(left_argument_type, right_argument_type)>(
-            [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
+            std::function<bool(const left_argument_type&, const right_argument_type&)>(
+            [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
             {
                 return left_argument > right_argument;
             }),
@@ -295,12 +333,14 @@ void test_suite_##suite_name::run()
     }
 
     template <typename fail_type, typename left_argument_type, typename right_argument_type>
-    void test::not_greater(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
+    void test::not_greater(const left_argument_type& left_argument,
+                           const right_argument_type& right_argument,
+                           const std::string& description)
     {
         static const std::string DEFAULT_DESCRIPTION = "check {} <= {}";
         test::assert<fail_type>(
-            std::function<bool(left_argument_type, right_argument_type)>(
-            [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
+            std::function<bool(const left_argument_type&, const right_argument_type&)>(
+            [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
             {
                 return left_argument <= right_argument;
             }),
@@ -310,12 +350,14 @@ void test_suite_##suite_name::run()
     }
 
     template <typename fail_type, typename left_argument_type, typename right_argument_type>
-    void test::not_less(left_argument_type left_argument, right_argument_type right_argument, const std::string& description)
+    void test::not_less(const left_argument_type& left_argument,
+                        const right_argument_type& right_argument,
+                        const std::string& description)
     {
         static const std::string DEFAULT_DESCRIPTION = "check {} >= {}";
         test::assert<fail_type>(
-            std::function<bool(left_argument_type, right_argument_type)>(
-            [&](left_argument_type left_argument, right_argument_type right_argument) -> bool
+            std::function<bool(const left_argument_type&, const right_argument_type&)>(
+            [](const left_argument_type& left_argument, const right_argument_type& right_argument) -> bool
             {
                 return left_argument >= right_argument;
             }),
@@ -324,13 +366,14 @@ void test_suite_##suite_name::run()
         );
     }
 
-    template <typename fail_type>
-    void test::is_null(object argument, const std::string& description)
+    template <typename fail_type, typename argument_type>
+    void test::is_null(const argument_type& argument,
+                       const std::string& description)
     {
         static const std::string DEFAULT_DESCRIPTION = "check {} is null";
         test::assert<fail_type>(
-            std::function<bool(object)>(
-            [&](object argument) -> bool
+            std::function<bool(const argument_type&)>(
+            [&](const argument_type& argument) -> bool
             {
                 return argument.is_null();
             }),
@@ -339,13 +382,14 @@ void test_suite_##suite_name::run()
         );
     }
 
-    template <typename fail_type>
-    void test::is_not_null(object argument, const std::string& description)
+    template <typename fail_type, typename argument_type>
+    void test::is_not_null(const argument_type& argument,
+                           const std::string& description)
     {
         static const std::string DEFAULT_DESCRIPTION = "check {} is not null";
         test::assert<fail_type>(
-            std::function<bool(object)>(
-            [&](object argument) -> bool
+            std::function<bool(const argument_type&)>(
+            [](const argument_type& argument) -> bool
             {
                 return argument.is_not_null();
             }),
@@ -355,7 +399,8 @@ void test_suite_##suite_name::run()
     }
 
     template <typename fail_type, typename result_type, typename ...argument_types>
-    result_type test::no_exeption(std::function<result_type(argument_types... arguments)>&& action, argument_types... arguments)
+    result_type test::no_exeption(const std::function<result_type(const argument_types&... arguments)>& action,
+                                  const argument_types&... arguments)
     {
         try
         {
@@ -372,7 +417,8 @@ void test_suite_##suite_name::run()
     }
 
     template <typename exception_type, typename fail_type, typename result_type, typename ...argument_types>
-    void test::expect_exception(std::function<result_type(argument_types... arguments)>&& action, argument_types... arguments)
+    void test::expect_exception(const std::function<result_type(const argument_types&... arguments)>& action,
+                                const argument_types&... arguments)
     {
         try
         {
