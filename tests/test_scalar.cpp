@@ -23,7 +23,9 @@ namespace dyn
     {
         scalar<float> f = 56.789f;
         TEST_CHECK(f) == 56.789f;
+        TEST_CHECK(f) != 56.788f;
         TEST_CHECK(f) >= 56.788f;
+        TEST_CHECK(f) != 56.79f;
         TEST_CHECK(f) <= 56.79f;
         TEST_CHECK(f).is_true();
         TEST_CHECK(f.get<float>()) == 56.789f;

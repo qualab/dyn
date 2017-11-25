@@ -572,7 +572,7 @@ void test_suite_##suite_name::run()
     template <typename another_type>
     void test::check<fail_type, argument_type>::operator != (const another_type& another) const
     {
-        test::not_equal<fail_type>(m_argument, anoter);
+        test::not_equal<fail_type>(m_argument, another);
     }
 
     template <typename fail_type, typename argument_type>
