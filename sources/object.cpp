@@ -83,6 +83,21 @@ namespace dyn
             stream << "null";
     }
 
+    bool object::operator ! () const
+    {
+        return !as_bool();
+    }
+
+    object::operator bool() const
+    {
+        return as_bool();
+    }
+
+    bool object::as_bool() const
+    {
+        return m_data ? m_data->as_bool() : false;
+    }
+
     std::ostream& operator << (std::ostream& stream, const object& argument)
     {
         stream << "object{";
@@ -90,70 +105,142 @@ namespace dyn
         return stream << '}';
     }
 
-    template <> object& object::operator = (std::int64_t value)
+    template <> object& object::operator = (const bool& value)
+    {
+        initialize<scalar<bool>::data>(value);
+        return *this;
+    }
+
+    template <> object& object::operator = (const std::int64_t& value)
     {
         initialize<scalar<std::int64_t>::data>(value);
         return *this;
     }
 
-    template <> object& object::operator = (std::int32_t value)
+    template <> object& object::operator = (const std::int32_t& value)
     {
         initialize<scalar<std::int32_t>::data>(value);
         return *this;
     }
 
-    template <> object& object::operator = (std::int16_t value)
+    template <> object& object::operator = (const std::int16_t& value)
     {
         initialize<scalar<std::int16_t>::data>(value);
         return *this;
     }
 
-    template <> object& object::operator = (std::int8_t value)
+    template <> object& object::operator = (const std::int8_t& value)
     {
         initialize<scalar<std::int8_t>::data>(value);
         return *this;
     }
 
-    template <> object& object::operator = (std::uint64_t value)
+    template <> object& object::operator = (const std::uint64_t& value)
     {
         initialize<scalar<std::uint64_t>::data>(value);
         return *this;
     }
 
-    template <> object& object::operator = (std::uint32_t value)
+    template <> object& object::operator = (const std::uint32_t& value)
     {
         initialize<scalar<std::uint32_t>::data>(value);
         return *this;
     }
 
-    template <> object& object::operator = (std::uint16_t value)
+    template <> object& object::operator = (const std::uint16_t& value)
     {
         initialize<scalar<std::uint16_t>::data>(value);
         return *this;
     }
 
-    template <> object& object::operator = (std::uint8_t value)
+    template <> object& object::operator = (const std::uint8_t& value)
     {
         initialize<scalar<std::uint8_t>::data>(value);
         return *this;
     }
 
-    template <> object& object::operator = (double value)
+    template <> object& object::operator = (const double& value)
     {
         initialize<scalar<double>::data>(value);
         return *this;
     }
 
-    template <> object& object::operator = (float value)
+    template <> object& object::operator = (const float& value)
     {
         initialize<scalar<float>::data>(value);
         return *this;
     }
 
-    template <> object& object::operator = (std::nullptr_t)
+    template <> object& object::operator = (const char& value)
+    {
+        initialize<scalar<char>::data>(value);
+        return *this;
+    }
+
+    template <> object& object::operator = (const std::nullptr_t&)
     {
         reset();
         return *this;
+    }
+
+    template <> const bool& object::get<bool>() const
+    {
+        return data_as<scalar<bool>::data>().get();
+    }
+
+    template <> const std::int64_t& object::get<std::int64_t>() const
+    {
+        return data_as<scalar<std::int64_t>::data>().get();
+    }
+
+    template <> const std::int32_t& object::get<std::int32_t>() const
+    {
+        return data_as<scalar<std::int32_t>::data>().get();
+    }
+
+    template <> const std::int16_t& object::get<std::int16_t>() const
+    {
+        return data_as<scalar<std::int16_t>::data>().get();
+    }
+
+    template <> const std::int8_t& object::get<std::int8_t>() const
+    {
+        return data_as<scalar<std::int8_t>::data>().get();
+    }
+
+    template <> const std::uint64_t& object::get<std::uint64_t>() const
+    {
+        return data_as<scalar<std::uint64_t>::data>().get();
+    }
+
+    template <> const std::uint32_t& object::get<std::uint32_t>() const
+    {
+        return data_as<scalar<std::uint32_t>::data>().get();
+    }
+
+    template <> const std::uint16_t& object::get<std::uint16_t>() const
+    {
+        return data_as<scalar<std::uint16_t>::data>().get();
+    }
+
+    template <> const std::uint8_t& object::get<std::uint8_t>() const
+    {
+        return data_as<scalar<std::uint8_t>::data>().get();
+    }
+
+    template <> const double& object::get<double>() const
+    {
+        return data_as<scalar<double>::data>().get();
+    }
+
+    template <> const float& object::get<float>() const
+    {
+        return data_as<scalar<float>::data>().get();
+    }
+
+    template <> const char& object::get<char>() const
+    {
+        return data_as<scalar<char>::data>().get();
     }
 }
 

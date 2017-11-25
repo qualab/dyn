@@ -24,7 +24,7 @@ namespace dyn
         scalar& operator = (value_type value);
         operator value_type () const;
 
-        value_type value() const;
+        const value_type& value() const;
         value_type& value();
 
         bool operator ! () const;
@@ -78,8 +78,6 @@ namespace dyn
 
         class data;
 
-        class not_same_type_exception;
-
     protected:
         virtual void reset() override;
 
@@ -97,21 +95,16 @@ namespace dyn
         virtual object::data* move_to(void*) override;
         virtual object::data* copy_to(void*) override;
 
+        virtual bool as_bool() const override;
+
         virtual void output(std::ostream& stream) const override;
 
-        value_type get() const;
-        value_type& ref();
         void set(value_type value);
+        const value_type& get() const;
+        value_type& get();
 
     private:
         value_type m_value;
-    };
-
-    template <typename value_type>
-    class scalar<value_type>::not_same_type_exception : public std::exception
-    {
-    public:
-        const char* what() const override;
     };
 
     template <typename value_type>
@@ -139,19 +132,13 @@ namespace dyn
     scalar<value_type>::scalar(const object& another)
         : m_data(nullptr)
     {
-        const data* another_data = dynamic_cast<const data*>(another.m_data);
-        if (!another_data)
-            throw not_same_type_exception();
-        m_data = initialize<data>(another_data->get());
+        *this = another;
     }
 
     template <typename value_type>
     scalar<value_type>& scalar<value_type>::operator = (const object& another)
     {
-        const data* another_data = dynamic_cast<const data*>(another.m_data);
-        if (!another_data)
-            throw not_same_type_exception();
-        set(another_data->get());
+        set(another.data_as<data>().get());
         return *this;
     }
 
@@ -176,7 +163,7 @@ namespace dyn
     }
 
     template <typename value_type>
-    value_type scalar<value_type>::value() const
+    const value_type& scalar<value_type>::value() const
     {
         return m_data->get();
     }
@@ -431,15 +418,21 @@ namespace dyn
     }
 
     template <typename value_type>
+    object::data* scalar<value_type>::data::move_to(void* buffer)
+    {
+        return new(buffer) data(std::move(*this));
+    }
+
+    template <typename value_type>
     object::data* scalar<value_type>::data::copy_to(void* buffer)
     {
         return new(buffer) data(*this);
     }
 
     template <typename value_type>
-    object::data* scalar<value_type>::data::move_to(void* buffer)
+    bool scalar<value_type>::data::as_bool() const
     {
-        return new(buffer) data(std::move(*this));
+        return static_cast<bool>(m_value);
     }
 
     template <typename value_type>
@@ -449,27 +442,21 @@ namespace dyn
     }
 
     template <typename value_type>
-    value_type scalar<value_type>::data::get() const
-    {
-        return m_value;
-    }
-
-    template <typename value_type>
-    value_type& scalar<value_type>::data::ref()
-    {
-        return m_value;
-    }
-
-    template <typename value_type>
     void scalar<value_type>::data::set(value_type value)
     {
         m_value = value;
     }
 
     template <typename value_type>
-    const char* scalar<value_type>::not_same_type_exception::what() const
+    const value_type& scalar<value_type>::data::get() const
     {
-        return "Object data is not of the same value scalar type. Unable to instantiate scalar data.";
+        return m_value;
+    }
+
+    template <typename value_type>
+    value_type& scalar<value_type>::data::get()
+    {
+        return m_value;
     }
 }
 

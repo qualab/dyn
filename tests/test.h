@@ -61,6 +61,10 @@ namespace dyn
                              const std::string& description = "");
 
         template <typename fail_type, typename argument_type>
+        static void is_not(const argument_type& argument,
+                           const std::string& description = "");
+
+        template <typename fail_type, typename argument_type>
         static void is_null(const argument_type& argument,
                             const std::string& description = "");
 
@@ -259,6 +263,23 @@ void test_suite_##suite_name::run()
                 [](const argument_type& argument) -> bool
                 {
                     return argument ? false : true;
+                }
+            ),
+            description.empty() ? DEFAULT_DESCRIPTION : description,
+            argument
+        );
+    }
+
+    template <typename fail_type, typename argument_type>
+    void test::is_not(const argument_type& argument,
+                      const std::string& description)
+    {
+        static const std::string DEFAULT_DESCRIPTION = "check is not {}";
+        test::assert<fail_type>(
+            std::function<bool(const argument_type&)>(
+                [](const argument_type& argument) -> bool
+                {
+                    return !argument;
                 }
             ),
             description.empty() ? DEFAULT_DESCRIPTION : description,
