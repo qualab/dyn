@@ -54,7 +54,7 @@ namespace dyn
         {
             return;
         }
-        output_stream << " at " << test_current_file << '(' << test_current_line << "): ";
+        output_stream << "at " << test_current_file << '(' << test_current_line << ")\n  > ";
     }
 
     void test::output_description(std::ostream& output_stream, const std::string& description)
