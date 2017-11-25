@@ -16,6 +16,8 @@ namespace dyn
         std::list<test::suite*> test_suites;
         std::ostream* test_output = &std::cout;
         thread_local std::list<std::unique_ptr<const test::fail>> test_fails;
+        thread_local const char* test_current_file = "";
+        thread_local int test_current_line = 0;
 
         template <typename fail_type, typename ...argument_types>
         void register_fail(argument_types... arguments)
@@ -32,6 +34,27 @@ namespace dyn
     std::ostream& test::output()
     {
         return *test_output;
+    }
+
+    void test::store_current_position(const char* file, int line)
+    {
+        test_current_file = file;
+        test_current_line = line;
+    }
+
+    void test::clear_current_position()
+    {
+        test_current_file = "";
+        test_current_line = 0;
+    }
+
+    void test::output_current_position(std::ostream& output_stream)
+    {
+        if (!test_current_file || !*test_current_file || test_current_line <= 0)
+        {
+            return;
+        }
+        output_stream << " at " << test_current_file << '(' << test_current_line << "): ";
     }
 
     void test::output_description(std::ostream& output_stream, const std::string& description)

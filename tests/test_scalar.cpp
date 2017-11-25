@@ -9,81 +9,58 @@ namespace dyn
     TEST_SUITE(test_scalar_int)
     {
         scalar<int> i = 1234;
-        test::equal<test::fail>(i, 1234);
-        test::greater<test::fail>(i, 1233);
-        test::less<test::fail>(i, 1235);
-        test::expect_exception<object::representation_exception<scalar<float>::data>, test::fail>(
-            std::function<void()>(
-                [i]()
-                {
-                    i.get<float>();
-                }
-            )
-        );
-        test::is_true<test::fail>(i);
-        test::equal<test::fail>(i.get<int>(), 1234);
+        TEST_CHECK(i) == 1234;
+        TEST_CHECK(i) > 1233;
+        TEST_CHECK(i) < 1235;
+        TEST_CHECK([i]() {
+            i.get<float>();
+        }).expect_exception<object::representation_exception<scalar<float>::data>>();
+        TEST_CHECK(i).is_true();
+        TEST_CHECK(i.get<int>()) == 1234;
     }
 
     TEST_SUITE(test_scalar_float)
     {
         scalar<float> f = 56.789f;
-        test::equal<test::fail>(f, 56.789f);
-        test::not_less<test::fail>(f, 56.788f);
-        test::not_greater<test::fail>(f, 56.790f);
-        test::is_true<test::fail>(f);
-        test::equal<test::fail>(f.get<float>(), 56.789f);
-
-        test::expect_exception<object::representation_exception<scalar<int>::data>, test::fail>(
-            std::function<void()>(
-                [f]()
-                {
-                    f.get<int>();
-                }
-            )
-        );
+        TEST_CHECK(f) == 56.789f;
+        TEST_CHECK(f) >= 56.788f;
+        TEST_CHECK(f) <= 56.79f;
+        TEST_CHECK(f).is_true();
+        TEST_CHECK(f.get<float>()) == 56.789f;
+        TEST_CHECK([f]() {
+            f.get<int>();
+        }).expect_exception<object::representation_exception<scalar<int>::data>>();
     }
 
     TEST_SUITE(test_scalar_bool)
     {
         scalar<bool> b = true;
-        test::is_true<test::fail>(b);
-        test::is_false<test::fail>(!b);
+        TEST_CHECK(b).is_true();
+        TEST_CHECK(!b).is_false();
 
         b = false;
-        test::is_false<test::fail>(b);
-        test::is_true<test::fail>(!b);
+        TEST_CHECK(b).is_false();
+        TEST_CHECK(b).is_not();
     }
 
     TEST_SUITE(test_scalar_uint64)
     {
         scalar<unsigned long long> u = 1234567890uLL;
-        test::equal<test::fail>(u, 1234567890uLL);
-        test::equal<test::fail>(u.get<unsigned long long>(), 1234567890uLL);
-
-        test::expect_exception<object::representation_exception<scalar<long long>::data>, test::fail>(
-            std::function<void()>(
-                [u]()
-                {
-                    u.get<long long>();
-                }
-            )
-        );
+        TEST_CHECK(u) == 1234567890uLL;
+        TEST_CHECK(u.get<unsigned long long>()) == 1234567890uLL;
+        TEST_CHECK([u]() {
+            u.get<long long>();
+        }).expect_exception<object::representation_exception<scalar<long long>::data>>();
     }
 
     TEST_SUITE(test_scalar_char)
     {
         scalar<char> c = '*';
-        test::equal<test::fail>(c, '*');
-        test::equal<test::fail>(c.get<char>(), '*');
-
-        test::expect_exception<object::representation_exception<scalar<unsigned char>::data>, test::fail>(
-            std::function<void()>(
-                [c]()
-                {
-                    c.get<unsigned char>();
-                }
-            )
-        );
+        TEST_CHECK(c) == '*';
+        TEST_CHECK(c.get<char>()) == '*';
+        TEST_CHECK([c]() {
+            c.get<unsigned char>();
+        }).expect_exception<object::representation_exception<scalar<unsigned char>::data>>();
     }
 
     struct biggest_good
@@ -109,19 +86,12 @@ namespace dyn
 
     TEST_SUITE(test_scalar_biggest_data)
     {
-        test::no_exeption<test::fail>(
-            std::function<void()>([&]()
-            {
-                scalar<biggest_good> good;
-            })
-        );
-
-        test::expect_exception<object::data_size_exception<scalar<least_bad>::data>, test::fail>(
-            std::function<void()>([&]()
-            {
-                scalar<least_bad> bad;
-            })
-        );
+        TEST_CHECK([]() {
+            scalar<biggest_good> good;
+        }).no_exception();
+        TEST_CHECK([]() {
+            scalar<least_bad> bad;
+        }).expect_exception<object::data_size_exception<scalar<least_bad>::data>>();
     }
 }
 

@@ -16,9 +16,17 @@ namespace dyn
     public:
         class suite;
 
+        template <typename fail_type, typename argument_type>
+        class check;
+
         class fail;         // fails single check
         class error;        // fails suite run
         class fatal_error;  // fails whole test run
+
+        template <typename fail_type, typename argument_type>
+        static check<fail_type, argument_type> make_check(const argument_type& argument,
+                                                          const char* file,
+                                                          int line);
 
         template <typename fail_type>
         class unhandled_exception;
@@ -39,6 +47,10 @@ namespace dyn
         static void assert(const std::function<bool(const argument_types&... arguments)>& predicate,
                            const std::string& description,
                            const argument_types&... arguments);
+
+        static void store_current_position(const char* file, int line);
+        static void clear_current_position();
+        static void output_current_position(std::ostream& output_stream);
 
         static void output_description(std::ostream& output_stream,
                                        const std::string& description);
@@ -102,11 +114,11 @@ namespace dyn
                              const right_argument_type& right_argument,
                              const std::string& description = "");
 
-        template <typename fail_type, typename result_type, typename ...argument_types>
-        static result_type no_exeption(const std::function<result_type(const argument_types&... arguments)>& action,
-                                       const argument_types&... arguments);
+        template <typename fail_type, typename result_type, typename... argument_types>
+        static result_type no_exception(const std::function<result_type(const argument_types&... arguments)>& action,
+                                        const argument_types&... arguments);
 
-        template <typename exception_type, typename fail_type, typename result_type, typename ...argument_types>
+        template <typename exception_type, typename fail_type, typename result_type, typename... argument_types>
         static void expect_exception(const std::function<result_type(const argument_types&... arguments)>& action,
                                      const argument_types&... arguments);
     };
@@ -128,6 +140,63 @@ public: \
 } g_test_suite_##suite_name; \
  \
 void test_suite_##suite_name::run()
+
+    template <typename fail_type, typename argument_type>
+    class test::check
+    {
+    public:
+        check(const argument_type& argument, const char* file, int line);
+        check(check&& temporary);
+        ~check();
+
+        template <typename another_type>
+        void operator == (const another_type& another) const;
+
+        template <typename another_type>
+        void operator != (const another_type& another) const;
+
+        template <typename another_type>
+        void operator < (const another_type& another) const;
+
+        template <typename another_type>
+        void operator > (const another_type& another) const;
+
+        template <typename another_type>
+        void operator <= (const another_type& another) const;
+
+        template <typename another_type>
+        void operator >= (const another_type& another) const;
+
+        void is_true() const;
+        void is_false() const;
+        void is_not() const;
+        void is_null() const;
+        void is_not_null() const;
+
+        template <typename... parameter_types>
+        void no_exception(const parameter_types&... parameters) const;
+
+        template <typename exception_type, typename... parameter_types>
+        void expect_exception(const parameter_types&... parameters) const;
+
+    private:
+        const argument_type& m_argument;
+        bool m_clear_position;
+
+        check(const check& restricted);
+    };
+
+    template <typename fail_type, typename argument_type>
+    test::check<fail_type, argument_type> test::make_check(const argument_type& argument,
+                                                           const char* file,
+                                                           int line)
+    {
+        return test::check<fail_type, argument_type>(argument, file, line);
+    }
+
+#define TEST_CHECK(argument) test::make_check<test::fail>(argument, __FILE__, __LINE__)
+#define TEST_CRITICAL_CHECK(argument) test::make_check<test::error>(argument, __FILE__, __LINE__)
+#define TEST_RUN_CRITICAL_CHECK(argument) test::make_check<test::fatal_error>(argument, __FILE__, __LINE__)
 
     class test::fail : public std::exception
     {
@@ -203,6 +272,7 @@ void test_suite_##suite_name::run()
         if (!complete)
         {
             std::stringstream message_stream;
+            test::output_current_position(message_stream);
             test::output_description(message_stream, description, arguments...);
             test::handle_fail<fail_type>(message_stream.str());
         }
@@ -430,8 +500,8 @@ void test_suite_##suite_name::run()
     }
 
     template <typename fail_type, typename result_type, typename ...argument_types>
-    result_type test::no_exeption(const std::function<result_type(const argument_types&... arguments)>& action,
-                                  const argument_types&... arguments)
+    result_type test::no_exception(const std::function<result_type(const argument_types&... arguments)>& action,
+                                   const argument_types&... arguments)
     {
         try
         {
@@ -468,6 +538,115 @@ void test_suite_##suite_name::run()
             test::handle_fail<test::nonstandard_unhandled_exception<test::error>>();
         }
         throw exception_expected<exception_type, fail_type>();
+    }
+
+    template <typename fail_type, typename argument_type>
+    test::check<fail_type, argument_type>::check(const argument_type& argument, const char* file, int line)
+        : m_argument(argument), m_clear_position(true)
+    {
+        test::store_current_position(file, line);
+    }
+
+    template <typename fail_type, typename argument_type>
+    test::check<fail_type, argument_type>::check(check<fail_type, argument_type>&& temporary)
+        : m_argument(temporary.m_argument), m_clear_position(temporary.m_clear_position)
+    {
+        temporary.m_clear_position = false;
+    }
+
+    template <typename fail_type, typename argument_type>
+    test::check<fail_type, argument_type>::~check()
+    {
+        if (m_clear_position)
+            test::clear_current_position();
+    }
+
+    template <typename fail_type, typename argument_type>
+    template <typename another_type>
+    void test::check<fail_type, argument_type>::operator == (const another_type& another) const
+    {
+        test::equal<fail_type>(m_argument, another);
+    }
+
+    template <typename fail_type, typename argument_type>
+    template <typename another_type>
+    void test::check<fail_type, argument_type>::operator != (const another_type& another) const
+    {
+        test::not_equal<fail_type>(m_argument, anoter);
+    }
+
+    template <typename fail_type, typename argument_type>
+    template <typename another_type>
+    void test::check<fail_type, argument_type>::operator < (const another_type& another) const
+    {
+        test::less<fail_type>(m_argument, another);
+    }
+
+    template <typename fail_type, typename argument_type>
+    template <typename another_type>
+    void test::check<fail_type, argument_type>::operator > (const another_type& another) const
+    {
+        test::greater<fail_type>(m_argument, another);
+    }
+
+    template <typename fail_type, typename argument_type>
+    template <typename another_type>
+    void test::check<fail_type, argument_type>::operator <= (const another_type& another) const
+    {
+        test::not_greater<fail_type>(m_argument, another);
+    }
+
+    template <typename fail_type, typename argument_type>
+    template <typename another_type>
+    void test::check<fail_type, argument_type>::operator >= (const another_type& another) const
+    {
+        test::not_less<fail_type>(m_argument, another);
+    }
+
+    template <typename fail_type, typename argument_type>
+    void test::check<fail_type, argument_type>::is_true() const
+    {
+        test::is_true<fail_type>(m_argument);
+    }
+
+    template <typename fail_type, typename argument_type>
+    void test::check<fail_type, argument_type>::is_false() const
+    {
+        test::is_false<fail_type>(m_argument);
+    }
+
+    template <typename fail_type, typename argument_type>
+    void test::check<fail_type, argument_type>::is_not() const
+    {
+        test::is_not<fail_type>(m_argument);
+    }
+
+    template <typename fail_type, typename argument_type>
+    void test::check<fail_type, argument_type>::is_null() const
+    {
+        test::is_null<fail_type>(m_argument);
+    }
+
+    template <typename fail_type, typename argument_type>
+    void test::check<fail_type, argument_type>::is_not_null() const
+    {
+        test::is_not_null<fail_type>(m_argument);
+    }
+
+    template <typename fail_type, typename argument_type>
+    template <typename... parameter_types>
+    void test::check<fail_type, argument_type>::no_exception(const parameter_types&... parameters) const
+    {
+        test::no_exception<fail_type>(
+            std::function<void(const parameter_types&...)>(m_argument), parameters...);
+    }
+
+    template <typename fail_type, typename argument_type>
+    template <typename exception_type, typename... parameter_types>
+    void test::check<fail_type, argument_type>::expect_exception(const parameter_types&... parameters) const
+    {
+        test::expect_exception<exception_type, fail_type>(
+            std::function<void(const parameter_types&...)>(m_argument), parameters...);
     }
 
     template <typename exception_type, typename fail_type>
