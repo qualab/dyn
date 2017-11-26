@@ -59,6 +59,8 @@ namespace dyn
     {
         scalar<char> c = '*';
         TEST_CHECK(c) == '*';
+        TEST_CHECK(c) > '\0';
+        TEST_CHECK(c) < '0';
         TEST_CHECK(c.get<char>()) == '*';
         TEST_CHECK([c]() {
             c.get<unsigned char>();

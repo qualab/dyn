@@ -41,7 +41,7 @@ namespace dyn
         static std::ostream& output();
 
         static void add(suite* new_suite);
-        static void run();
+        static void run(const std::string& name = "");
 
         template <typename fail_type, typename... argument_types>
         static void assert(const std::function<bool(const argument_types&... arguments)>& predicate,

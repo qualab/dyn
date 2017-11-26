@@ -67,8 +67,11 @@ namespace dyn
         test_suites.push_back(new_suite);
     }
 
-    void test::run()
+    void test::run(const std::string& run_name)
     {
+        static const std::string DEFAULT_NAME = "testing";
+        const std::string& name = run_name.empty() ? DEFAULT_NAME : run_name;
+        output() << "TEST RUN '" << name << "'\n\n";
         std::find_if(test_suites.begin(), test_suites.end(),
             // return true to terminate test run
             [&](test::suite* current_suite)
