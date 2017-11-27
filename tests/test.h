@@ -1,9 +1,8 @@
-﻿// test scalar
+﻿// test mechanism base constructions
 
 #include <dyn/public.h>
 #include <functional>
 #include <exception>
-#include <typeinfo>
 #include <iostream>
 #include <utility>
 #include <sstream>
@@ -651,7 +650,7 @@ void test_suite_##suite_name::run()
 
     template <typename exception_type, typename fail_type>
     test::exception_expected<exception_type, fail_type>::exception_expected()
-        : fail_type("expected exception of type " + std::string(typeid(exception_type).name()))
+        : fail_type("expected exception of the type specified")
     {
     }
 

@@ -2,7 +2,6 @@
 
 #include <dyn/object.h>
 #include <dyn/scalar.h>
-#include <typeinfo>
 #include <iostream>
 #include <utility>
 
@@ -72,7 +71,17 @@ namespace dyn
 
     const char* object::data::name() const
     {
-        return typeid(*this).name();
+        return "data";
+    }
+
+    bool object::data::as_bool() const
+    {
+        return true;
+    }
+
+    void object::data::output(std::ostream& stream) const
+    {
+        stream << "data{name='" << name() << "'}";
     }
 
     void object::output_data(std::ostream& stream) const

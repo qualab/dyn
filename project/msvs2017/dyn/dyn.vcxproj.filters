@@ -21,6 +21,9 @@
     <ClInclude Include="..\..\..\include\dyn\scalar.h">
       <Filter>include\dyn</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\dyn\reference.h">
+      <Filter>include\dyn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\sources\object.cpp">

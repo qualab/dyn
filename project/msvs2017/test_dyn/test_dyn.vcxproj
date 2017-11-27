@@ -14,6 +14,7 @@
     <ClCompile Include="..\..\..\tests\test.cpp" />
     <ClCompile Include="..\..\..\tests\test_dyn.cpp" />
     <ClCompile Include="..\..\..\tests\test_object.cpp" />
+    <ClCompile Include="..\..\..\tests\test_reference.cpp" />
     <ClCompile Include="..\..\..\tests\test_scalar.cpp" />
   </ItemGroup>
   <ItemGroup>

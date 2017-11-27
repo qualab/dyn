@@ -1,4 +1,4 @@
-﻿// dynamically typified object
+﻿// dynamic typification library declarations
 
 #pragma once
 

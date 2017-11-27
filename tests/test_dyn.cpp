@@ -7,9 +7,9 @@
 
 void main()
 {
-    dyn::test::run("Dynamic typification testing");
+    dyn::test::run("dynamic typification testing");
 
-    std::cout << "\nPress any key... ";
+    std::cout << "Press any key... ";
     getch();
 }
 

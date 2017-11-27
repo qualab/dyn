@@ -1,4 +1,4 @@
-﻿// dynamically typified object
+﻿// scalar storage with scalar data and overloaded operators
 
 #pragma once
 
@@ -438,7 +438,7 @@ namespace dyn
     template <typename value_type>
     void scalar<value_type>::data::output(std::ostream& stream) const
     {
-        stream << "scalar<" << typeid(value_type).name() << ">: " << m_value;
+        stream << "scalar: " << m_value;
     }
 
     template <typename value_type>

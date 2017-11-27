@@ -89,9 +89,8 @@ namespace dyn
 
         virtual const char* name() const;
 
-        virtual bool as_bool() const = 0;
-
-        virtual void output(std::ostream& stream) const = 0;
+        virtual bool as_bool() const;
+        virtual void output(std::ostream& stream) const;
     };
 
     template <typename derived_data>

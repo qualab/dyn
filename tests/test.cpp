@@ -1,4 +1,4 @@
-﻿// test scalar
+﻿// test mechanism implementation
 
 #include <dyn/object.h>
 #include <list>
@@ -70,8 +70,9 @@ namespace dyn
     void test::run(const std::string& run_name)
     {
         static const std::string DEFAULT_NAME = "testing";
+        static const std::string RUN_DELIMITER = " - - -\n";
         const std::string& name = run_name.empty() ? DEFAULT_NAME : run_name;
-        output() << "TEST RUN '" << name << "'\n\n";
+        output() << "TEST RUN '" << name << "'\n" << RUN_DELIMITER;
         std::find_if(test_suites.begin(), test_suites.end(),
             // return true to terminate test run
             [&](test::suite* current_suite)
@@ -116,6 +117,7 @@ namespace dyn
                 return stop_run;
             }
         );
+        output() << RUN_DELIMITER;
     }
 
     test::suite::suite()
