@@ -6,6 +6,7 @@
 #include <exception>
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include <iosfwd>
 
 #ifndef DYN_OBJECT_MAX_DATA_SIZE
@@ -182,6 +183,9 @@ namespace dyn
 
     template <> DYN_PUBLIC object& object::operator = (const char& value);
 
+    template <> DYN_PUBLIC object& object::operator = (const char* const& value);
+    template <> DYN_PUBLIC object& object::operator = (const std::string& value);
+
     template <> DYN_PUBLIC object& object::operator = (const std::nullptr_t&);
 
     template <> DYN_PUBLIC const bool& object::get<bool>() const;
@@ -200,6 +204,7 @@ namespace dyn
     template <> DYN_PUBLIC const float& object::get<float>() const;
 
     template <> DYN_PUBLIC const char& object::get<char>() const;
+    template <> DYN_PUBLIC const std::string& object::get<std::string>() const;
 }
 
 // Unicode signature: Владимир Керимов

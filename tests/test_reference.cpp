@@ -20,11 +20,24 @@ namespace dyn
     TEST_SUITE(test_reference_assignment)
     {
         reference<std::string> s = "Who is your daddy?!";
-        TEST_CHECK(*s) == "Who is your daddy?!";
+        TEST_CHECK(s.const_instance()) == "Who is your daddy?!";
         const reference<std::string> c = s;
         TEST_CHECK(c.shared_count()) == 2;
         TEST_CHECK(c->substr(12)) == "daddy?!";
         TEST_CHECK(c.shared_count()) == 2;
+        reference<std::string> t = s;
+        TEST_CHECK(t.shared_count()) == 3;
+        TEST_CHECK(c.shared_count()) == t.shared_count();
+        TEST_CHECK(s.shared_count()) == t.shared_count();
+        TEST_CRITICAL_CHECK([&t]() {
+            t->at(t->size() - 1u) = '?';
+        }).no_exception();
+        TEST_CHECK(t.const_instance()) == "Who is your daddy??";
+        TEST_CHECK(s.const_instance()) == "Who is your daddy?!";
+        TEST_CHECK(t.is_unique()).is_true();
+        TEST_CHECK(t.shared_count()) != s.shared_count();
+        TEST_CHECK(c.shared_count()) == s.shared_count();
+        TEST_CHECK(s.shared_count()) == 2;
     }
 }
 

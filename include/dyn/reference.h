@@ -23,8 +23,15 @@ namespace dyn
         const instance_type& operator * () const;
         instance_type& operator * ();
 
+        const instance_type& const_instance() const;
+        const instance_type& instance() const;
+        instance_type& instance();
+
         bool is_unique() const;
         int shared_count() const;
+
+        bool operator == (const reference& another) const;
+        bool operator != (const reference& another) const;
 
         class data;
 
@@ -48,6 +55,7 @@ namespace dyn
 
         bool is_unique() const;
         int shared_count() const;
+        bool equals(const data& another) const;
 
         virtual object::data* move_to(void* buffer) override;
         virtual object::data* copy_to(void* buffer) override;
@@ -105,6 +113,24 @@ namespace dyn
     }
 
     template <typename instance_type>
+    const instance_type& reference<instance_type>::const_instance() const
+    {
+        return **this;
+    }
+
+    template <typename instance_type>
+    const instance_type& reference<instance_type>::instance() const
+    {
+        return **this;
+    }
+
+    template <typename instance_type>
+    instance_type& reference<instance_type>::instance()
+    {
+        return **this;
+    }
+
+    template <typename instance_type>
     bool reference<instance_type>::is_unique() const
     {
         return m_data->is_unique();
@@ -114,6 +140,18 @@ namespace dyn
     int reference<instance_type>::shared_count() const
     {
         return m_data->shared_count();
+    }
+
+    template <typename instance_type>
+    bool reference<instance_type>::operator == (const reference<instance_type>& another) const
+    {
+        return m_data->equals(*another.m_data);
+    }
+
+    template <typename instance_type>
+    bool reference<instance_type>::operator != (const reference<instance_type>& another) const
+    {
+        return !m_data->equals(*another.m_data);
     }
 
     template <typename instance_type>
@@ -156,6 +194,12 @@ namespace dyn
     int reference<instance_type>::data::shared_count() const
     {
         return m_instance.use_count();
+    }
+
+    template <typename instance_type>
+    bool reference<instance_type>::data::equals(const data& another) const
+    {
+        return m_instance == another.m_instance;
     }
 
     template <typename instance_type>

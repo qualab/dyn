@@ -2,6 +2,7 @@
 
 #include <dyn/object.h>
 #include <dyn/scalar.h>
+#include <dyn/reference.h>
 #include <iostream>
 #include <utility>
 
@@ -186,6 +187,18 @@ namespace dyn
         return *this;
     }
 
+    template <> object& object::operator = (const char* const& value)
+    {
+        initialize<reference<std::string>::data>(value);
+        return *this;
+    }
+
+    template <> object& object::operator = (const std::string& value)
+    {
+        initialize<reference<std::string>::data>(value);
+        return *this;
+    }
+
     template <> object& object::operator = (const std::nullptr_t&)
     {
         reset();
@@ -250,6 +263,11 @@ namespace dyn
     template <> const char& object::get<char>() const
     {
         return data_as<scalar<char>::data>().get();
+    }
+
+    template <> const std::string& object::get<std::string>() const
+    {
+        return *data_as<reference<std::string>::data>().get_shared();
     }
 }
 
