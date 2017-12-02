@@ -62,6 +62,33 @@ namespace dyn
         TEST_CHECK(p).is_false();
         TEST_CHECK(p).is_not();
     }
+
+    TEST_SUITE(test_object_string)
+    {
+        object c = std::string("The world is not enough!..");
+        TEST_CRITICAL_CHECK(c).is_not_null();
+        TEST_CHECK(c).is_true();
+        TEST_CHECK(!c).is_false();
+        TEST_CHECK(c.get<std::string>()) == "The world is not enough!..";
+
+        object s = std::string(2, '!');
+        TEST_CRITICAL_CHECK(s).is_not_null();
+        TEST_CHECK(s.get<std::string>()) == "!!";
+
+        object x = s;
+        TEST_CRITICAL_CHECK(x).is_not_null();
+        TEST_CHECK(x.get<std::string>()) == "!!";
+        TEST_CHECK(x.get<std::string>()) == s.get<std::string>();
+
+        x = c;
+        const object t = x;
+        size_t pos = t.get<std::string>().find('.');
+        TEST_CRITICAL_CHECK(pos) != std::string::npos;
+        x.get<std::string>().replace(pos, std::string::npos, s.get<std::string>());
+        TEST_CHECK(x.get<std::string>()) == "The world is not enough!!!";
+        TEST_CHECK(c.get<std::string>()) == "The world is not enough!..";
+        TEST_CHECK(s.get<std::string>()) == "!!";
+    }
 }
 
 // Unicode signature: Владимир Керимов

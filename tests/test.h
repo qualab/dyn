@@ -49,7 +49,8 @@ namespace dyn
 
         static void store_current_position(const char* file, int line);
         static void clear_current_position();
-        static void output_current_position(std::ostream& output_stream);
+        static void retrieve_current_position(const char*& file, int& line);
+        static void output_position(std::ostream& output_stream, const char* file, int line);
 
         static void output_description(std::ostream& output_stream,
                                        const std::string& description);
@@ -205,12 +206,16 @@ void test_suite_##suite_name::run()
 
         virtual const char* what() const override;
         virtual const std::string& message() const;
+        virtual const char* file() const;
+        virtual int line() const;
 
         virtual const char* label() const;
         virtual void handle() const;
 
     private:
         std::string m_message;
+        const char* m_file;
+        int m_line;
     };
 
     class test::error : public test::fail
@@ -271,7 +276,6 @@ void test_suite_##suite_name::run()
         if (!complete)
         {
             std::stringstream message_stream;
-            test::output_current_position(message_stream);
             test::output_description(message_stream, description, arguments...);
             test::handle_fail<fail_type>(message_stream.str());
         }

@@ -13,7 +13,8 @@
 namespace dyn
 {
     class object;
-    template <typename> class scalar;
+    template<typename> class scalar;
+    template<typename> class reference;
 }
 
 // Unicode signature: Владимир Керимов

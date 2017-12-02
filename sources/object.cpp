@@ -70,6 +70,11 @@ namespace dyn
         return m_data;
     }
 
+    object::data* object::get_data()
+    {
+        return m_data;
+    }
+
     const char* object::data::name() const
     {
         return "data";
@@ -268,6 +273,11 @@ namespace dyn
     template <> const std::string& object::get<std::string>() const
     {
         return *data_as<reference<std::string>::data>().get_shared();
+    }
+
+    template <> std::string& object::get<std::string>()
+    {
+        return *data_as<reference<std::string>::data>().get_unique();
     }
 }
 

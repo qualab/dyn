@@ -68,7 +68,12 @@ namespace dyn
         template <typename derived_data_type>
         const derived_data_type& data_as() const;
 
+        template <typename derived_data_type>
+        derived_data_type& data_as();
+
         const data* get_data() const;
+        data* get_data();
+
         virtual void reset();
         virtual bool as_bool() const;
 
@@ -130,7 +135,6 @@ namespace dyn
     template <typename value_type>
     value_type& object::get()
     {
-        // allowed local const cast to avoid copy-paste in template specializations
         return const_cast<value_type&>(static_cast<const object*>(this)->get<value_type>());
     }
 
@@ -155,6 +159,12 @@ namespace dyn
     }
 
     template <typename derived_data_type>
+    derived_data_type& object::data_as()
+    {
+        return const_cast<derived_data_type&>(static_cast<const object*>(this)->data_as<derived_data_type>());
+    }
+
+    template <typename derived_data_type>
     const char* object::data_size_exception<derived_data_type>::what() const
     {
         return "Object data size is too big for object internal buffer.";
@@ -166,45 +176,47 @@ namespace dyn
         return "Object can not be represented by the type specified.";
     }
 
-    template <> DYN_PUBLIC object& object::operator = (const bool& value);
+    template<> DYN_PUBLIC object& object::operator = (const bool& value);
 
-    template <> DYN_PUBLIC object& object::operator = (const std::int64_t& value);
-    template <> DYN_PUBLIC object& object::operator = (const std::int32_t& value);
-    template <> DYN_PUBLIC object& object::operator = (const std::int16_t& value);
-    template <> DYN_PUBLIC object& object::operator = (const std::int8_t& value);
+    template<> DYN_PUBLIC object& object::operator = (const std::int64_t& value);
+    template<> DYN_PUBLIC object& object::operator = (const std::int32_t& value);
+    template<> DYN_PUBLIC object& object::operator = (const std::int16_t& value);
+    template<> DYN_PUBLIC object& object::operator = (const std::int8_t& value);
 
-    template <> DYN_PUBLIC object& object::operator = (const std::uint64_t& value);
-    template <> DYN_PUBLIC object& object::operator = (const std::uint32_t& value);
-    template <> DYN_PUBLIC object& object::operator = (const std::uint16_t& value);
-    template <> DYN_PUBLIC object& object::operator = (const std::uint8_t& value);
+    template<> DYN_PUBLIC object& object::operator = (const std::uint64_t& value);
+    template<> DYN_PUBLIC object& object::operator = (const std::uint32_t& value);
+    template<> DYN_PUBLIC object& object::operator = (const std::uint16_t& value);
+    template<> DYN_PUBLIC object& object::operator = (const std::uint8_t& value);
 
-    template <> DYN_PUBLIC object& object::operator = (const double& value);
-    template <> DYN_PUBLIC object& object::operator = (const float& value);
+    template<> DYN_PUBLIC object& object::operator = (const double& value);
+    template<> DYN_PUBLIC object& object::operator = (const float& value);
 
-    template <> DYN_PUBLIC object& object::operator = (const char& value);
+    template<> DYN_PUBLIC object& object::operator = (const char& value);
 
-    template <> DYN_PUBLIC object& object::operator = (const char* const& value);
-    template <> DYN_PUBLIC object& object::operator = (const std::string& value);
+    template<> DYN_PUBLIC object& object::operator = (const char* const& value);
+    template<> DYN_PUBLIC object& object::operator = (const std::string& value);
 
-    template <> DYN_PUBLIC object& object::operator = (const std::nullptr_t&);
+    template<> DYN_PUBLIC object& object::operator = (const std::nullptr_t&);
 
-    template <> DYN_PUBLIC const bool& object::get<bool>() const;
+    template<> DYN_PUBLIC const bool& object::get<bool>() const;
 
-    template <> DYN_PUBLIC const std::int64_t& object::get<std::int64_t>() const;
-    template <> DYN_PUBLIC const std::int32_t& object::get<std::int32_t>() const;
-    template <> DYN_PUBLIC const std::int16_t& object::get<std::int16_t>() const;
-    template <> DYN_PUBLIC const std::int8_t& object::get<std::int8_t>() const;
+    template<> DYN_PUBLIC const std::int64_t& object::get<std::int64_t>() const;
+    template<> DYN_PUBLIC const std::int32_t& object::get<std::int32_t>() const;
+    template<> DYN_PUBLIC const std::int16_t& object::get<std::int16_t>() const;
+    template<> DYN_PUBLIC const std::int8_t& object::get<std::int8_t>() const;
 
-    template <> DYN_PUBLIC const std::uint64_t& object::get<std::uint64_t>() const;
-    template <> DYN_PUBLIC const std::uint32_t& object::get<std::uint32_t>() const;
-    template <> DYN_PUBLIC const std::uint16_t& object::get<std::uint16_t>() const;
-    template <> DYN_PUBLIC const std::uint8_t& object::get<std::uint8_t>() const;
+    template<> DYN_PUBLIC const std::uint64_t& object::get<std::uint64_t>() const;
+    template<> DYN_PUBLIC const std::uint32_t& object::get<std::uint32_t>() const;
+    template<> DYN_PUBLIC const std::uint16_t& object::get<std::uint16_t>() const;
+    template<> DYN_PUBLIC const std::uint8_t& object::get<std::uint8_t>() const;
 
-    template <> DYN_PUBLIC const double& object::get<double>() const;
-    template <> DYN_PUBLIC const float& object::get<float>() const;
+    template<> DYN_PUBLIC const double& object::get<double>() const;
+    template<> DYN_PUBLIC const float& object::get<float>() const;
 
-    template <> DYN_PUBLIC const char& object::get<char>() const;
-    template <> DYN_PUBLIC const std::string& object::get<std::string>() const;
+    template<> DYN_PUBLIC const char& object::get<char>() const;
+
+    template<> DYN_PUBLIC const std::string& object::get<std::string>() const;
+    template<> DYN_PUBLIC std::string& object::get<std::string>();
 }
 
 // Unicode signature: Владимир Керимов

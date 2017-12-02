@@ -48,13 +48,19 @@ namespace dyn
         test_current_line = 0;
     }
 
-    void test::output_current_position(std::ostream& output_stream)
+    void test::retrieve_current_position(const char*& file, int& line)
     {
-        if (!test_current_file || !*test_current_file || test_current_line <= 0)
+        file = test_current_file;
+        line = test_current_line;
+    }
+
+    void test::output_position(std::ostream& output_stream, const char* file, int line)
+    {
+        if (!file || !*file || line <= 0)
         {
             return;
         }
-        output_stream << "at " << test_current_file << '(' << test_current_line << ")\n  > ";
+        output_stream << "at " << file << '(' << line << ")\n  > ";
     }
 
     void test::output_description(std::ostream& output_stream, const std::string& description)
@@ -108,7 +114,9 @@ namespace dyn
                     std::for_each(test_fails.begin(), test_fails.end(),
                         [&](const std::unique_ptr<const test::fail>& failure)
                         {
-                            output() << "\n !> " << failure->label() << ": " << failure->message();
+                            output() << "\n !> " << failure->label() << ": ";
+                            output_position(output(), failure->file(), failure->line());
+                            output() << failure->message();
                         }
                     );
                     test_fails.clear();
@@ -126,8 +134,9 @@ namespace dyn
     }
 
     test::fail::fail(const std::string& message)
-        : m_message(message)
+        : m_message(message), m_file(), m_line()
     {
+        retrieve_current_position(m_file, m_line);
     }
 
     test::fail::~fail()
@@ -142,6 +151,16 @@ namespace dyn
     const std::string& test::fail::message() const
     {
         return m_message;
+    }
+
+    const char* test::fail::file() const
+    {
+        return m_file;
+    }
+
+    int test::fail::line() const
+    {
+        return m_line;
     }
 
     const char* test::fail::label() const
