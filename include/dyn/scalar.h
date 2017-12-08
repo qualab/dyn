@@ -19,9 +19,9 @@ namespace dyn
         scalar(const object& another);
         scalar& operator = (const object& another);
 
-        scalar(value_type value);
+        scalar(value_type scalar_value);
+        scalar& operator = (value_type scalar_value);
 
-        scalar& operator = (value_type value);
         operator value_type () const;
 
         const value_type& value() const;
@@ -99,9 +99,8 @@ namespace dyn
 
         virtual void output(std::ostream& stream) const override;
 
-        void set(value_type value);
-        const value_type& get() const;
-        value_type& get();
+        const value_type& value() const;
+        value_type& value();
 
     private:
         value_type m_value;
@@ -138,26 +137,26 @@ namespace dyn
     template <typename value_type>
     scalar<value_type>& scalar<value_type>::operator = (const object& another)
     {
-        set(another.data_as<data>().get());
+        value() = another.data_as<data>().value();
         return *this;
     }
 
     template <typename value_type>
-    scalar<value_type>::scalar(value_type value)
+    scalar<value_type>::scalar(value_type scalar_value)
         : m_data(nullptr)
     {
-        m_data = initialize<data>(value);
+        m_data = initialize<data>(scalar_value);
     }
 
     template <typename value_type>
-    scalar<value_type>& scalar<value_type>::operator = (value_type value)
+    scalar<value_type>& scalar<value_type>::operator = (value_type scalar_value)
     {
-        m_data->set(value);
+        value() = scalar_value;
         return *this;
     }
 
     template <typename value_type>
-    scalar<value_type>::operator value_type () const
+    scalar<value_type>::operator value_type() const
     {
         return value();
     }
@@ -165,13 +164,13 @@ namespace dyn
     template <typename value_type>
     const value_type& scalar<value_type>::value() const
     {
-        return m_data->get();
+        return m_data->value();
     }
 
     template <typename value_type>
     value_type& scalar<value_type>::value()
     {
-        return m_data->ref();
+        return m_data->value();
     }
 
     template <typename value_type>
@@ -262,28 +261,28 @@ namespace dyn
     template <typename value_type>
     scalar<value_type>& scalar<value_type>::operator += (const scalar<value_type>& another)
     {
-        set(value() + another.value());
+        value() += another.value();
         return *this;
     }
 
     template <typename value_type>
     scalar<value_type>& scalar<value_type>::operator -= (const scalar<value_type>& another)
     {
-        set(value() - another.value());
+        value() -= another.value();
         return *this;
     }
 
     template <typename value_type>
     scalar<value_type>& scalar<value_type>::operator *= (const scalar<value_type>& another)
     {
-        set(value() * another.value());
+        value() *= another.value();
         return *this;
     }
 
     template <typename value_type>
     scalar<value_type>& scalar<value_type>::operator /= (const scalar<value_type>& another)
     {
-        set(value() / another.value());
+        value() /= another.value();
         return *this;
     }
 
@@ -380,28 +379,28 @@ namespace dyn
     template <typename value_type>
     scalar<value_type>& scalar<value_type>::operator += (value_type another_value)
     {
-        set(value() + another_value);
+        value() += another_value;
         return *this;
     }
 
     template <typename value_type>
     scalar<value_type>& scalar<value_type>::operator -= (value_type another_value)
     {
-        set(value() - another_value);
+        value() -= another_value;
         return *this;
     }
 
     template <typename value_type>
     scalar<value_type>& scalar<value_type>::operator *= (value_type another_value)
     {
-        set(value() * another_value);
+        value() *= another_value;
         return *this;
     }
 
     template <typename value_type>
     scalar<value_type>& scalar<value_type>::operator /= (value_type another_value)
     {
-        set(value() / another_value);
+        value() /= another_value;
         return *this;
     }
 
@@ -442,19 +441,13 @@ namespace dyn
     }
 
     template <typename value_type>
-    void scalar<value_type>::data::set(value_type value)
-    {
-        m_value = value;
-    }
-
-    template <typename value_type>
-    const value_type& scalar<value_type>::data::get() const
+    const value_type& scalar<value_type>::data::value() const
     {
         return m_value;
     }
 
     template <typename value_type>
-    value_type& scalar<value_type>::data::get()
+    value_type& scalar<value_type>::data::value()
     {
         return m_value;
     }

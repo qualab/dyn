@@ -3,11 +3,9 @@
 #pragma once
 
 #include <dyn/public.h>
-#include <exception>
+#include <dyn/exception.h>
 #include <cstddef>
 #include <cstdint>
-#include <string>
-#include <iosfwd>
 
 #ifndef DYN_OBJECT_MAX_DATA_SIZE
 // Class object uses internal memory block for its data
@@ -55,11 +53,15 @@ namespace dyn
 
         static const size_t max_data_size = DYN_OBJECT_MAX_DATA_SIZE;
 
-        template <typename derived_data_type>
+        class exception;
         class data_size_exception;
+        class representation_exception;
 
         template <typename derived_data_type>
-        class representation_exception;
+        class data_size_exception_of;
+
+        template <typename derived_data_type>
+        class representation_exception_of;
 
     protected:
         template <typename derived_data_type, typename... arg_list>
@@ -99,18 +101,39 @@ namespace dyn
         virtual void output(std::ostream& stream) const;
     };
 
-    template <typename derived_data>
-    class object::data_size_exception : public std::exception
+    class DYN_PUBLIC object::exception : public dyn::exception
     {
     public:
-        const char* what() const override;
+        typedef dyn::exception base;
+        exception(const std::string& message);
+    };
+
+    class DYN_PUBLIC object::data_size_exception : public object::exception
+    {
+    public:
+        typedef object::exception base;
+        data_size_exception();
+    };
+
+    class DYN_PUBLIC object::representation_exception : public object::exception
+    {
+    public:
+        typedef object::exception base;
+        representation_exception();
+    };
+
+    template <typename derived_data>
+    class object::data_size_exception_of : public object::data_size_exception
+    {
+    public:
+        typedef object::data_size_exception base;
     };
 
     template <typename value_type>
-    class object::representation_exception : public std::exception
+    class object::representation_exception_of : public object::representation_exception
     {
     public:
-        const char* what() const override;
+        typedef object::representation_exception base;
     };
 
     template <typename value_type>
@@ -144,7 +167,7 @@ namespace dyn
         derived_data_type* result = nullptr;
         reset();
         if (sizeof(derived_data_type) > max_data_size)
-            throw data_size_exception<derived_data_type>();
+            throw data_size_exception_of<derived_data_type>();
         m_data = result = new(m_buffer) derived_data_type(arg...);
         return result;
     }
@@ -154,7 +177,7 @@ namespace dyn
     {
         const derived_data_type* derived_data = dynamic_cast<const derived_data_type*>(m_data);
         if (!derived_data)
-            throw representation_exception<derived_data_type>();
+            throw representation_exception_of<derived_data_type>();
         return *derived_data;
     }
 
@@ -162,18 +185,6 @@ namespace dyn
     derived_data_type& object::data_as()
     {
         return const_cast<derived_data_type&>(static_cast<const object*>(this)->data_as<derived_data_type>());
-    }
-
-    template <typename derived_data_type>
-    const char* object::data_size_exception<derived_data_type>::what() const
-    {
-        return "Object data size is too big for object internal buffer.";
-    }
-
-    template <typename value_type>
-    const char* object::representation_exception<value_type>::what() const
-    {
-        return "Object can not be represented by the type specified.";
     }
 
     template<> DYN_PUBLIC object& object::operator = (const bool& value);
@@ -196,6 +207,15 @@ namespace dyn
     template<> DYN_PUBLIC object& object::operator = (const char* const& value);
     template<> DYN_PUBLIC object& object::operator = (const std::string& value);
 
+    template<> DYN_PUBLIC object& object::operator = (const wchar_t* const& value);
+    template<> DYN_PUBLIC object& object::operator = (const std::wstring& value);
+
+    template<> DYN_PUBLIC object& object::operator = (const char16_t* const& value);
+    template<> DYN_PUBLIC object& object::operator = (const std::u16string& value);
+
+    template<> DYN_PUBLIC object& object::operator = (const char32_t* const& value);
+    template<> DYN_PUBLIC object& object::operator = (const std::u32string& value);
+
     template<> DYN_PUBLIC object& object::operator = (const std::nullptr_t&);
 
     template<> DYN_PUBLIC const bool& object::get<bool>() const;
@@ -217,6 +237,15 @@ namespace dyn
 
     template<> DYN_PUBLIC const std::string& object::get<std::string>() const;
     template<> DYN_PUBLIC std::string& object::get<std::string>();
+
+    template<> DYN_PUBLIC const std::wstring& object::get<std::wstring>() const;
+    template<> DYN_PUBLIC std::wstring& object::get<std::wstring>();
+
+    template<> DYN_PUBLIC const std::u16string& object::get<std::u16string>() const;
+    template<> DYN_PUBLIC std::u16string& object::get<std::u16string>();
+
+    template<> DYN_PUBLIC const std::u32string& object::get<std::u32string>() const;
+    template<> DYN_PUBLIC std::u32string& object::get<std::u32string>();
 }
 
 // Unicode signature: Владимир Керимов

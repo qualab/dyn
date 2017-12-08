@@ -12,9 +12,17 @@
 
 namespace dyn
 {
+    // dynamic typified object
     class object;
+
+    // scalar container with in-place data
     template<typename> class scalar;
+
+    // reference container with copy-on-write model
     template<typename> class reference;
+
+    // base exception class
+    class exception;
 }
 
 // Unicode signature: Владимир Керимов

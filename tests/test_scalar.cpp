@@ -14,7 +14,7 @@ namespace dyn
         TEST_CHECK(i) < 1235;
         TEST_CHECK([i]() {
             i.get<float>();
-        }).expect_exception<object::representation_exception<scalar<float>::data>>();
+        }).expect_exception<object::representation_exception_of<scalar<float>::data>>();
         TEST_CHECK(i).is_true();
         TEST_CHECK(i.get<int>()) == 1234;
     }
@@ -31,7 +31,7 @@ namespace dyn
         TEST_CHECK(f.get<float>()) == 56.789f;
         TEST_CHECK([f]() {
             f.get<int>();
-        }).expect_exception<object::representation_exception<scalar<int>::data>>();
+        }).expect_exception<object::representation_exception_of<scalar<int>::data>>();
     }
 
     TEST_SUITE(test_scalar_bool)
@@ -52,7 +52,7 @@ namespace dyn
         TEST_CHECK(u.get<unsigned long long>()) == 1234567890uLL;
         TEST_CHECK([u]() {
             u.get<long long>();
-        }).expect_exception<object::representation_exception<scalar<long long>::data>>();
+        }).expect_exception<object::representation_exception_of<scalar<long long>::data>>();
     }
 
     TEST_SUITE(test_scalar_char)
@@ -64,7 +64,7 @@ namespace dyn
         TEST_CHECK(c.get<char>()) == '*';
         TEST_CHECK([c]() {
             c.get<unsigned char>();
-        }).expect_exception<object::representation_exception<scalar<unsigned char>::data>>();
+        }).expect_exception<object::representation_exception_of<scalar<unsigned char>::data>>();
     }
 
     struct biggest_good
@@ -95,7 +95,7 @@ namespace dyn
         }).no_exception();
         TEST_CHECK([]() {
             scalar<least_bad> bad;
-        }).expect_exception<object::data_size_exception<scalar<least_bad>::data>>();
+        }).expect_exception<object::data_size_exception_of<scalar<least_bad>::data>>();
     }
 }
 

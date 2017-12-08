@@ -5,6 +5,7 @@
 #include <dyn/reference.h>
 #include <iostream>
 #include <utility>
+#include <string>
 
 namespace dyn
 {
@@ -120,6 +121,21 @@ namespace dyn
         return stream << '}';
     }
 
+    object::exception::exception(const std::string& message)
+        : base(message)
+    {
+    }
+
+    object::data_size_exception::data_size_exception()
+        : base("Object data size is too big for object internal buffer.")
+    {
+    }
+
+    object::representation_exception::representation_exception()
+        : base("Object can not be represented by the type specified.")
+    {
+    }
+
     template <> object& object::operator = (const bool& value)
     {
         initialize<scalar<bool>::data>(value);
@@ -204,6 +220,42 @@ namespace dyn
         return *this;
     }
 
+    template <> object& object::operator = (const wchar_t* const& value)
+    {
+        initialize<reference<std::wstring>::data>(value);
+        return *this;
+    }
+
+    template <> object& object::operator = (const std::wstring& value)
+    {
+        initialize<reference<std::wstring>::data>(value);
+        return *this;
+    }
+
+    template <> object& object::operator = (const char16_t* const& value)
+    {
+        initialize<reference<std::u16string>::data>(value);
+        return *this;
+    }
+
+    template <> object& object::operator = (const std::u16string& value)
+    {
+        initialize<reference<std::u16string>::data>(value);
+        return *this;
+    }
+
+    template <> object& object::operator = (const char32_t* const& value)
+    {
+        initialize<reference<std::u32string>::data>(value);
+        return *this;
+    }
+
+    template <> object& object::operator = (const std::u32string& value)
+    {
+        initialize<reference<std::u32string>::data>(value);
+        return *this;
+    }
+
     template <> object& object::operator = (const std::nullptr_t&)
     {
         reset();
@@ -212,62 +264,62 @@ namespace dyn
 
     template <> const bool& object::get<bool>() const
     {
-        return data_as<scalar<bool>::data>().get();
+        return data_as<scalar<bool>::data>().value();
     }
 
     template <> const std::int64_t& object::get<std::int64_t>() const
     {
-        return data_as<scalar<std::int64_t>::data>().get();
+        return data_as<scalar<std::int64_t>::data>().value();
     }
 
     template <> const std::int32_t& object::get<std::int32_t>() const
     {
-        return data_as<scalar<std::int32_t>::data>().get();
+        return data_as<scalar<std::int32_t>::data>().value();
     }
 
     template <> const std::int16_t& object::get<std::int16_t>() const
     {
-        return data_as<scalar<std::int16_t>::data>().get();
+        return data_as<scalar<std::int16_t>::data>().value();
     }
 
     template <> const std::int8_t& object::get<std::int8_t>() const
     {
-        return data_as<scalar<std::int8_t>::data>().get();
+        return data_as<scalar<std::int8_t>::data>().value();
     }
 
     template <> const std::uint64_t& object::get<std::uint64_t>() const
     {
-        return data_as<scalar<std::uint64_t>::data>().get();
+        return data_as<scalar<std::uint64_t>::data>().value();
     }
 
     template <> const std::uint32_t& object::get<std::uint32_t>() const
     {
-        return data_as<scalar<std::uint32_t>::data>().get();
+        return data_as<scalar<std::uint32_t>::data>().value();
     }
 
     template <> const std::uint16_t& object::get<std::uint16_t>() const
     {
-        return data_as<scalar<std::uint16_t>::data>().get();
+        return data_as<scalar<std::uint16_t>::data>().value();
     }
 
     template <> const std::uint8_t& object::get<std::uint8_t>() const
     {
-        return data_as<scalar<std::uint8_t>::data>().get();
+        return data_as<scalar<std::uint8_t>::data>().value();
     }
 
     template <> const double& object::get<double>() const
     {
-        return data_as<scalar<double>::data>().get();
+        return data_as<scalar<double>::data>().value();
     }
 
     template <> const float& object::get<float>() const
     {
-        return data_as<scalar<float>::data>().get();
+        return data_as<scalar<float>::data>().value();
     }
 
     template <> const char& object::get<char>() const
     {
-        return data_as<scalar<char>::data>().get();
+        return data_as<scalar<char>::data>().value();
     }
 
     template <> const std::string& object::get<std::string>() const
@@ -278,6 +330,36 @@ namespace dyn
     template <> std::string& object::get<std::string>()
     {
         return *data_as<reference<std::string>::data>().get_unique();
+    }
+
+    template <> const std::wstring& object::get<std::wstring>() const
+    {
+        return *data_as<reference<std::wstring>::data>().get_shared();
+    }
+
+    template <> std::wstring& object::get<std::wstring>()
+    {
+        return *data_as<reference<std::wstring>::data>().get_unique();
+    }
+
+    template <> const std::u16string& object::get<std::u16string>() const
+    {
+        return *data_as<reference<std::u16string>::data>().get_shared();
+    }
+
+    template <> std::u16string& object::get<std::u16string>()
+    {
+        return *data_as<reference<std::u16string>::data>().get_unique();
+    }
+
+    template <> const std::u32string& object::get<std::u32string>() const
+    {
+        return *data_as<reference<std::u32string>::data>().get_shared();
+    }
+
+    template <> std::u32string& object::get<std::u32string>()
+    {
+        return *data_as<reference<std::u32string>::data>().get_unique();
     }
 }
 

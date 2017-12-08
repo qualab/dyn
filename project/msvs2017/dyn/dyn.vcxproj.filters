@@ -24,9 +24,24 @@
     <ClInclude Include="..\..\..\include\dyn\reference.h">
       <Filter>include\dyn</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\dyn\exception.h">
+      <Filter>include\dyn</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\dyn\stdfwd.h">
+      <Filter>include\dyn</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\dyn\trace.h">
+      <Filter>include\dyn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\sources\object.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sources\exception.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sources\trace.cpp">
       <Filter>sources</Filter>
     </ClCompile>
   </ItemGroup>
