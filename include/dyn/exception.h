@@ -18,6 +18,7 @@ namespace dyn
         virtual const char* what() const override;
         virtual const std::string& message() const;
         virtual const trace::stack_type& stack() const;
+        virtual const trace::scope& scope() const;
 
     private:
         std::string m_message;

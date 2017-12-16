@@ -1,6 +1,6 @@
 ﻿// test mechanism base constructions
 
-#include <dyn/public.h>
+#include <dyn/exception.h>
 #include <functional>
 #include <exception>
 #include <iostream>
@@ -46,11 +46,6 @@ namespace dyn
         static void assert(const std::function<bool(const argument_types&... arguments)>& predicate,
                            const std::string& description,
                            const argument_types&... arguments);
-
-        static void store_current_position(const char* file, int line);
-        static void clear_current_position();
-        static void retrieve_current_position(const char*& file, int& line);
-        static void output_position(std::ostream& output_stream, const char* file, int line);
 
         static void output_description(std::ostream& output_stream,
                                        const std::string& description);
@@ -127,27 +122,42 @@ namespace dyn
     {
     public:
         suite();
-        virtual const char* name() const = 0;
+
         virtual void run() = 0;
+
+        virtual const std::string& name() const = 0;
+        virtual const std::string& file() const = 0;
+        virtual int line() const = 0;
+
+        virtual void scope_run();
     };
 
 #define TEST_SUITE(suite_name) \
 class test_suite_##suite_name : public test::suite \
 { \
 public: \
-    virtual const char* name() const override { return #suite_name; } \
+    test_suite_##suite_name() \
+        : m_name(#suite_name), m_file(__FILE__), m_line(__LINE__) { } \
     virtual void run() override; \
+    virtual const std::string& name() const override { return m_name; } \
+    virtual const std::string& file() const override { return m_file; } \
+    virtual int line() const override { return m_line; } \
+private: \
+    std::string m_name; \
+    std::string m_file; \
+    int m_line; \
 } g_test_suite_##suite_name; \
  \
 void test_suite_##suite_name::run()
 
     template <typename fail_type, typename argument_type>
-    class test::check
+    class test::check : public trace::scope
     {
     public:
-        check(const argument_type& argument, const char* file, int line);
+        typedef trace::scope base;
+
+        check(const argument_type& argument, const std::string& file, int line);
         check(check&& temporary);
-        ~check();
 
         template <typename another_type>
         void operator == (const another_type& another) const;
@@ -181,10 +191,14 @@ void test_suite_##suite_name::run()
 
     private:
         const argument_type& m_argument;
-        bool m_clear_position;
 
-        check(const check& restricted);
+        static const std::string scope_name;
+
+        check(const check& temporary);
     };
+
+    template <typename fail_type, typename argument_type>
+    const std::string test::check<fail_type, argument_type>::scope_name = "check";
 
     template <typename fail_type, typename argument_type>
     test::check<fail_type, argument_type> test::make_check(const argument_type& argument,
@@ -198,30 +212,20 @@ void test_suite_##suite_name::run()
 #define TEST_CRITICAL_CHECK(argument) test::make_check<test::error>(argument, __FILE__, __LINE__)
 #define TEST_RUN_CRITICAL_CHECK(argument) test::make_check<test::fatal_error>(argument, __FILE__, __LINE__)
 
-    class test::fail : public std::exception
+    class test::fail : public dyn::exception
     {
     public:
-        fail(const std::string& message);
-        virtual ~fail();
+        typedef dyn::exception base;
 
-        virtual const char* what() const override;
-        virtual const std::string& message() const;
-        virtual const char* file() const;
-        virtual int line() const;
-
+        explicit fail(const std::string& message);
         virtual const char* label() const;
         virtual void handle() const;
-
-    private:
-        std::string m_message;
-        const char* m_file;
-        int m_line;
     };
 
     class test::error : public test::fail
     {
     public:
-        error(const std::string& message);
+        explicit error(const std::string& message);
         virtual const char* label() const override;
         virtual void handle() const override;
     };
@@ -229,7 +233,7 @@ void test_suite_##suite_name::run()
     class test::fatal_error : public test::error
     {
     public:
-        fatal_error(const std::string& message);
+        explicit fatal_error(const std::string& message);
         virtual const char* label() const override;
         virtual void handle() const override;
     };
@@ -544,24 +548,15 @@ void test_suite_##suite_name::run()
     }
 
     template <typename fail_type, typename argument_type>
-    test::check<fail_type, argument_type>::check(const argument_type& argument, const char* file, int line)
-        : m_argument(argument), m_clear_position(true)
+    test::check<fail_type, argument_type>::check(const argument_type& argument, const std::string& file, int line)
+        : base(scope_name, file, line), m_argument(argument)
     {
-        test::store_current_position(file, line);
     }
 
     template <typename fail_type, typename argument_type>
     test::check<fail_type, argument_type>::check(check<fail_type, argument_type>&& temporary)
-        : m_argument(temporary.m_argument), m_clear_position(temporary.m_clear_position)
+        : base(std::move(temporary)), m_argument(temporary.m_argument)
     {
-        temporary.m_clear_position = false;
-    }
-
-    template <typename fail_type, typename argument_type>
-    test::check<fail_type, argument_type>::~check()
-    {
-        if (m_clear_position)
-            test::clear_current_position();
     }
 
     template <typename fail_type, typename argument_type>

@@ -28,6 +28,7 @@ namespace dyn
     class DYN_PUBLIC trace::scope
     {
     public:
+        scope();
         scope(const std::string& name, const std::string& file, int line);
         virtual ~scope();
 
@@ -41,6 +42,8 @@ namespace dyn
         const std::string& file() const;
         int line() const;
 
+        static const std::string global_name;
+
     private:
         bool m_requires_pop;
         std::string m_name;
@@ -52,7 +55,7 @@ namespace dyn
 
     DYN_PUBLIC std::ostream& operator << (std::ostream& output_stream, const trace::scope& the_scope);
 
-    const trace::stack_type& trace::stack()
+    inline const trace::stack_type& trace::stack()
     {
         return m_stack;
     }

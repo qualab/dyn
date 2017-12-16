@@ -16,8 +16,6 @@ namespace dyn
         std::list<test::suite*> test_suites;
         std::ostream* test_output = &std::cout;
         thread_local std::list<std::unique_ptr<const test::fail>> test_fails;
-        thread_local const char* test_current_file = "";
-        thread_local int test_current_line = 0;
 
         template <typename fail_type, typename ...argument_types>
         void register_fail(argument_types... arguments)
@@ -34,33 +32,6 @@ namespace dyn
     std::ostream& test::output()
     {
         return *test_output;
-    }
-
-    void test::store_current_position(const char* file, int line)
-    {
-        test_current_file = file;
-        test_current_line = line;
-    }
-
-    void test::clear_current_position()
-    {
-        test_current_file = "";
-        test_current_line = 0;
-    }
-
-    void test::retrieve_current_position(const char*& file, int& line)
-    {
-        file = test_current_file;
-        line = test_current_line;
-    }
-
-    void test::output_position(std::ostream& output_stream, const char* file, int line)
-    {
-        if (!file || !*file || line <= 0)
-        {
-            return;
-        }
-        output_stream << "at " << file << '(' << line << ")\n  > ";
     }
 
     void test::output_description(std::ostream& output_stream, const std::string& description)
@@ -87,7 +58,7 @@ namespace dyn
                 output() << "RUNNING " << current_suite->name() << " - ";
                 try
                 {
-                    current_suite->run();
+                    current_suite->scope_run();
                 }
                 catch (test::fatal_error&)
                 {
@@ -114,9 +85,7 @@ namespace dyn
                     std::for_each(test_fails.begin(), test_fails.end(),
                         [&](const std::unique_ptr<const test::fail>& failure)
                         {
-                            output() << "\n !> " << failure->label() << ": ";
-                            output_position(output(), failure->file(), failure->line());
-                            output() << failure->message();
+                            output() << "\n !> " << failure->label() << ": " << *failure;
                         }
                     );
                     test_fails.clear();
@@ -133,34 +102,15 @@ namespace dyn
         test::add(this);
     }
 
+    void test::suite::scope_run()
+    {
+        trace::scope scope(name(), file(), line());
+        run();
+    }
+
     test::fail::fail(const std::string& message)
-        : m_message(message), m_file(), m_line()
+        : base(message)
     {
-        retrieve_current_position(m_file, m_line);
-    }
-
-    test::fail::~fail()
-    {
-    }
-
-    const char* test::fail::what() const
-    {
-        return m_message.c_str();
-    }
-
-    const std::string& test::fail::message() const
-    {
-        return m_message;
-    }
-
-    const char* test::fail::file() const
-    {
-        return m_file;
-    }
-
-    int test::fail::line() const
-    {
-        return m_line;
     }
 
     const char* test::fail::label() const

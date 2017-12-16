@@ -8,16 +8,25 @@
 namespace dyn
 {
     thread_local trace::stack_type trace::m_stack;
+    const std::string trace::scope::global_name = "global";
 
     std::ostream& operator << (std::ostream& output_stream, const trace::stack_type& the_stack)
     {
         std::for_each(the_stack.begin(), the_stack.end(),
             [&](const trace::scope& the_scope)
             {
-                output_stream << "\n > " << the_scope;
+                output_stream << "\n -> " << the_scope;
             }
         );
         return output_stream;
+    }
+
+    trace::scope::scope()
+        : m_requires_pop(false),
+          m_name(global_name),
+          m_file(),
+          m_line()
+    {
     }
 
     trace::scope::scope(const std::string& name, const std::string& file, int line)
@@ -97,7 +106,16 @@ namespace dyn
 
     std::ostream& operator << (std::ostream& output_stream, const trace::scope& the_scope)
     {
-        return output_stream << the_scope.file() << '(' << the_scope.line() << "): " << the_scope.name();
+        output_stream << the_scope.name();
+        if (!the_scope.file().empty())
+        {
+            output_stream << " -- " << the_scope.file();
+            if (the_scope.line() >= 0)
+            {
+                output_stream << '(' << the_scope.line() << ')';
+            }
+        }
+        return output_stream;
     }
 }
 
