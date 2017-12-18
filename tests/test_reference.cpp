@@ -39,6 +39,61 @@ namespace dyn
         TEST_CHECK(c.shared_count()) == s.shared_count();
         TEST_CHECK(s.shared_count()) == 2;
     }
+
+    struct release_checker
+    {
+        release_checker() { ++staying_alive; }
+        release_checker(const release_checker&) { ++staying_alive; }
+        ~release_checker() { --staying_alive; }
+        void nonconst_method() { ++nonconst_calls; }
+        void const_method() const { ++const_calls; }
+
+        static int staying_alive;
+        static int nonconst_calls;
+        static int const_calls;
+    };
+
+    int release_checker::staying_alive = 0;
+    int release_checker::nonconst_calls = 0;
+    int release_checker::const_calls = 0;
+
+    TEST_SUITE(test_reference_release)
+    {
+        TEST_CRITICAL_CHECK(release_checker::staying_alive) == 0;
+        TEST_CRITICAL_CHECK(release_checker::nonconst_calls) == 0;
+        TEST_CRITICAL_CHECK(release_checker::const_calls) == 0;
+        {
+            reference<release_checker> checker;
+            TEST_CHECK(release_checker::staying_alive) == 1;
+            const reference<release_checker> referrer = checker;
+            TEST_CHECK(release_checker::staying_alive) == 1;
+            reference<release_checker> another = referrer;
+            TEST_CHECK(release_checker::staying_alive) == 1;
+            another->nonconst_method();
+            TEST_CHECK(release_checker::nonconst_calls) == 1;
+            TEST_CHECK(release_checker::staying_alive) == 2;
+            another->nonconst_method();
+            TEST_CHECK(release_checker::nonconst_calls) == 2;
+            TEST_CHECK(release_checker::staying_alive) == 2;
+            referrer->const_method();
+            TEST_CHECK(release_checker::const_calls) == 1;
+            TEST_CHECK(release_checker::staying_alive) == 2;
+            {
+                reference<release_checker> temporary;
+                TEST_CHECK(release_checker::staying_alive) == 3;
+                TEST_CHECK(release_checker::nonconst_calls) == 2;
+                TEST_CHECK(release_checker::const_calls) == 1;
+                reference<release_checker> temp_ref = another;
+                TEST_CHECK(release_checker::staying_alive) == 3;
+                temporary->nonconst_method();
+                TEST_CHECK(release_checker::staying_alive) == 3;
+                temp_ref->nonconst_method();
+                TEST_CHECK(release_checker::staying_alive) == 4;
+            }
+            TEST_CHECK(release_checker::staying_alive) == 2;
+        }
+        TEST_CHECK(release_checker::staying_alive) == 0;
+    }
 }
 
 // Unicode signature: Владимир Керимов
