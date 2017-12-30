@@ -12,15 +12,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\dyn\exception.h" />
+    <ClInclude Include="..\..\..\include\dyn\integer.h" />
     <ClInclude Include="..\..\..\include\dyn\object.h" />
     <ClInclude Include="..\..\..\include\dyn\public.h" />
     <ClInclude Include="..\..\..\include\dyn\reference.h" />
     <ClInclude Include="..\..\..\include\dyn\scalar.h" />
-    <ClInclude Include="..\..\..\include\dyn\stdfwd.h" />
     <ClInclude Include="..\..\..\include\dyn\trace.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\sources\exception.cpp" />
+    <ClCompile Include="..\..\..\sources\integer.cpp" />
     <ClCompile Include="..\..\..\sources\object.cpp" />
     <ClCompile Include="..\..\..\sources\trace.cpp" />
   </ItemGroup>
