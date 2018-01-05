@@ -99,6 +99,8 @@ namespace dyn
 
         virtual bool as_bool() const;
         virtual void output(std::ostream& stream) const;
+
+        static const size_t max_fields_size = max_data_size - sizeof(void*);
     };
 
     class DYN_PUBLIC object::exception : public dyn::exception

@@ -7,41 +7,6 @@
 
 namespace dyn
 {
-    namespace
-    {
-        const std::uint64_t tail_top_bit = static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::min());
-
-        const float max_float_to_head = static_cast<float>(std::numeric_limits<std::int64_t>::max());
-        const float min_float_to_head = static_cast<float>(std::numeric_limits<std::int64_t>::min());
-        const float max_float_to_tail = static_cast<float>(std::numeric_limits<std::uint64_t>::max());
-
-        const float float_to_integer_base = max_float_to_tail + 1.0f;
-        const float max_float_to_integer = max_float_to_head * float_to_integer_base + max_float_to_tail;
-        const float min_float_to_integer = min_float_to_head * float_to_integer_base - max_float_to_tail;
-
-        const double max_double_to_head = static_cast<double>(std::numeric_limits<std::int64_t>::max());
-        const double min_double_to_head = static_cast<double>(std::numeric_limits<std::int64_t>::min());
-        const double max_double_to_tail = static_cast<double>(std::numeric_limits<std::uint64_t>::max());
-
-        const double double_to_integer_base = max_double_to_tail + 1.0;
-        const double max_double_to_integer = max_double_to_head * double_to_integer_base + max_double_to_tail;
-        const double min_double_to_integer = min_double_to_head * double_to_integer_base - max_double_to_tail;
-
-        std::string float_to_string(float value)
-        {
-            std::stringstream result;
-            result << value;
-            return result.str();
-        }
-
-        std::string double_to_string(double value)
-        {
-            std::stringstream result;
-            result << value;
-            return result.str();
-        }
-    }
-
     integer::integer()
         : m_data(initialize<data>())
     {
@@ -107,88 +72,93 @@ namespace dyn
     {
     }
 
+    integer::operator std::int64_t() const
+    {
+        return cast_to<std::int64_t>();
+    }
+
+    integer::operator std::int32_t() const
+    {
+        return cast_to<std::int32_t>();
+    }
+
+    integer::operator std::int16_t() const
+    {
+        return cast_to<std::int16_t>();
+    }
+
+    integer::operator std::int8_t() const
+    {
+        return cast_to<std::int8_t>();
+    }
+
+    integer::operator std::uint64_t() const
+    {
+        return cast_to<std::uint64_t>();
+    }
+
+    integer::operator std::uint32_t() const
+    {
+        return cast_to<std::uint32_t>();
+    }
+
+    integer::operator std::uint16_t() const
+    {
+        return cast_to<std::uint16_t>();
+    }
+
+    integer::operator std::uint8_t() const
+    {
+        return cast_to<std::uint8_t>();
+    }
+
+    integer::operator double() const
+    {
+        return cast_to<double>();
+    }
+
+    integer::operator float() const
+    {
+        return cast_to<float>();
+    }
+
+    integer::operator char() const
+    {
+        return cast_to<char>();
+    }
+
+    integer::data::data()
+        : m_head(), m_tail()
+    {
+    }
+
+    integer::data::data(std::int64_t value)
+        : m_head(value), m_tail()
+    {
+    }
+
     integer::data::data(std::int64_t head, std::uint64_t tail)
+        : m_head(head), m_tail({tail})
+    {
+        correct_tail();
+    }
+
+    integer::data::data(std::int64_t head, const integer::data::tail_type& tail)
         : m_head(head), m_tail(tail)
     {
-        if (!m_head && !(m_tail & tail_top_bit))
-        {
-            m_head = static_cast<std::int64_t>(m_tail);
-            m_tail = 0;
-        }
+        correct_tail();
     }
 
     integer::data::data(double value)
         : m_head(), m_tail()
     {
-        if (value >= 0)
-        {
-            if (value <= max_double_to_head)
-            {
-                m_head = static_cast<std::int64_t>(value);
-            }
-            else if (value <= max_double_to_integer)
-            {
-                m_head = static_cast<std::int64_t>(value / double_to_integer_base);
-                m_tail = static_cast<std::int64_t>(fmod(value, double_to_integer_base));
-            }
-            else
-            {
-                throw integer::out_of_range_exception_of<double>(value);
-            }
-        }
-        else
-        {
-            if (value >= min_double_to_head)
-            {
-                m_head = static_cast<std::int64_t>(value);
-            }
-            else if (value >= min_double_to_integer)
-            {
-                m_head = static_cast<std::int64_t>(value / double_to_integer_base);
-                m_tail = static_cast<std::int64_t>(fmod(value, double_to_integer_base));
-            }
-            else
-            {
-                throw integer::out_of_range_exception_of<double>(value);
-            }
-        }
+        // TODO: double -> integer
     }
 
     integer::data::data(float value)
         : m_head(), m_tail()
     {
-        if (value >= 0)
-        {
-            if (value <= max_float_to_head)
-            {
-                m_head = static_cast<std::int64_t>(value);
-            }
-            else if (value <= max_float_to_integer)
-            {
-                m_head = static_cast<std::int64_t>(value / float_to_integer_base);
-                m_tail = static_cast<std::int64_t>(fmod(value, float_to_integer_base));
-            }
-            else
-            {
-                throw integer::out_of_range_exception_of<float>(value);
-            }
-        }
-        else
-        {
-            if (value >= min_float_to_head)
-            {
-                m_head = static_cast<std::int64_t>(value);
-            }
-            else if (value >= min_float_to_integer)
-            {
-                m_head = static_cast<std::int64_t>(value / float_to_integer_base);
-                m_tail = static_cast<std::int64_t>(fmod(value, float_to_integer_base));
-            }
-            else
-            {
-                throw integer::out_of_range_exception_of<float>(value);
-            }
-        }
+        // TODO: float -> integer
     }
 
     object::data* integer::data::move_to(void* buffer)
@@ -208,19 +178,53 @@ namespace dyn
 
     bool integer::data::as_bool() const
     {
-        return m_head || m_tail;
+        return m_head || tail_size();
     }
 
     void integer::data::output(std::ostream& stream) const
     {
-        if (!m_tail)
+        if (tail_size())
         {
             stream << m_head;
         }
         else
         {
-            double value = m_head * double_to_integer_base + m_tail;
-            stream << value;
+            // TODO: integer -> ostream
+        }
+    }
+
+    size_t integer::data::tail_size() const
+    {
+        size_t number = max_tail_size;
+        for ( ; number && !m_tail[number - 1]; --number);
+        return number;
+    }
+
+    void integer::data::correct_tail()
+    {
+        static const std::uint64_t tail_top_bit = 1uLL << 63;
+
+        if (!m_head && tail_size() == 1 && !(m_tail[0] & tail_top_bit))
+        {
+            m_head = static_cast<std::int64_t>(m_tail[0]);
+            m_tail[0] = 0;
+        }
+    }
+
+    namespace
+    {
+        std::string float_to_string(float value)
+        {
+            std::stringstream result;
+            result << value;
+            return result.str();
+        }
+
+        std::string double_to_string(double value)
+        {
+            std::stringstream result;
+            result << value;
+            return result.str();
         }
     }
 
