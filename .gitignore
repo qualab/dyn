@@ -31,3 +31,4 @@
 .vs
 Debug
 Release
+*.db
