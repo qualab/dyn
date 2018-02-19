@@ -431,7 +431,7 @@ namespace dyn
     template <typename value_type>
     bool scalar<value_type>::data::as_bool() const
     {
-        return static_cast<bool>(m_value);
+        return m_value != 0;
     }
 
     template <typename value_type>
