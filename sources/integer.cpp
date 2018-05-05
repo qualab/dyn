@@ -7,48 +7,120 @@
 
 namespace dyn
 {
+	namespace
+	{
+		template <typename float_type>
+		void range_check_convert(float_type value, std::int64_t& signed_value, std::uint64_t& unsigned_value)
+		{
+			static const float_type min_signed = static_cast<float_type>(std::numeric_limits<std::int64_t>::min());
+			static const float_type max_signed = static_cast<float_type>(std::numeric_limits<std::int64_t>::max());
+			static const float_type max_unsigned = static_cast<float_type>(std::numeric_limits<std::uint64_t>::max());
+
+			if (value >= min_signed && value <= max_signed)
+			{
+				signed_value = static_cast<std::int64_t>(value);
+				unsigned_value = 0;
+			}
+			else if (value <= max_unsigned)
+			{
+				signed_value = 0;
+				unsigned_value = static_cast<std::uint64_t>(value);
+			}
+			else
+			{
+				signed_value = 0;
+				unsigned_value = 0;
+				throw integer::out_of_range_exception_of<float_type>(value);
+			}
+		}
+	}
+
     integer::integer()
         : m_data(initialize<data>())
     {
     }
 
-    integer::integer(std::int64_t value)
+	integer::integer(const integer& another)
+		: m_data(initialize<data>(*another.m_data))
+	{
+	}
+
+	integer& integer::operator = (const integer& another)
+	{
+		m_data = initialize<data>(*another.m_data);
+		return *this;
+	}
+
+	integer::integer(integer&& temporary)
+		: m_data(initialize<data>(std::move(*temporary.m_data)))
+	{
+	}
+
+	integer& integer::operator = (integer&& temporary)
+	{
+		m_data = initialize<data>(std::move(*temporary.m_data));
+		return *this;
+	}
+
+	integer::integer(const object& another)
+		: m_data(initialize<data>(another.data_as<data>()))
+	{
+	}
+
+	integer& integer::operator = (const object& another)
+	{
+		m_data = initialize<data>(another.data_as<data>());
+		return *this;
+	}
+
+	integer::integer(object&& temporary)
+		: m_data(initialize<data>(std::move(temporary.data_as<data>())))
+	{
+	}
+
+	integer& integer::operator = (object&& temporary)
+	{
+		m_data = initialize<data>(std::move(temporary.data_as<data>()));
+		return *this;
+	}
+
+	integer::integer(std::int64_t value)
         : m_data(initialize<data>(value))
     {
     }
 
     integer::integer(std::int32_t value)
-        : m_data(initialize<data>(static_cast<std::int64_t>(value)))
+        : m_data(initialize<data>(value))
     {
     }
 
     integer::integer(std::int16_t value)
-        : m_data(initialize<data>(static_cast<std::int64_t>(value)))
+        : m_data(initialize<data>(value))
     {
     }
 
     integer::integer(std::int8_t value)
-        : m_data(initialize<data>(static_cast<std::int64_t>(value)))
+        : m_data(initialize<data>(value))
     {
     }
 
     integer::integer(std::uint64_t value)
-        : m_data(initialize<data>(0, value))
+        : m_data(initialize<data>(value))
     {
     }
 
     integer::integer(std::uint32_t value)
-        : m_data(initialize<data>(static_cast<std::int64_t>(value)))
+        : m_data(initialize<data>(value))
     {
     }
 
     integer::integer(std::uint16_t value)
-        : m_data(initialize<data>(static_cast<std::int64_t>(value)))
+        : m_data(initialize<data>(value))
     {
     }
 
     integer::integer(std::uint8_t value)
-        : m_data(initialize<data>(static_cast<std::int64_t>(value)))
+        : m_data(initialize<data>(value))
     {
     }
 
@@ -128,38 +200,67 @@ namespace dyn
     }
 
     integer::data::data()
-        : m_head(), m_tail()
+        : m_signed(), m_unsigned()
     {
     }
 
     integer::data::data(std::int64_t value)
-        : m_head(value), m_tail()
+        : m_signed(value), m_unsigned()
     {
     }
 
-    integer::data::data(std::int64_t head, std::uint64_t tail)
-        : m_head(head), m_tail({tail})
+	integer::data::data(std::int32_t value)
+		: m_signed(value), m_unsigned()
+	{
+	}
+
+	integer::data::data(std::int16_t value)
+		: m_signed(value), m_unsigned()
+	{
+	}
+
+	integer::data::data(std::int8_t value)
+		: m_signed(value), m_unsigned()
+	{
+	}
+
+	integer::data::data(std::uint64_t value)
+        : m_signed(), m_unsigned(value)
     {
-        correct_tail();
+		static const std::uint64_t max_signed = std::numeric_limits<std::int64_t>::max();
+		if (m_unsigned <= max_signed)
+		{
+			m_signed = value;
+			m_unsigned = 0;
+		}
     }
 
-    integer::data::data(std::int64_t head, const integer::data::tail_type& tail)
-        : m_head(head), m_tail(tail)
-    {
-        correct_tail();
-    }
+	integer::data::data(std::uint32_t value)
+		: m_signed(value), m_unsigned()
+	{
+	}
 
-    integer::data::data(double value)
-        : m_head(), m_tail()
-    {
-        // TODO: double -> integer
+	integer::data::data(std::uint16_t value)
+		: m_signed(value), m_unsigned()
+	{
+	}
+
+	integer::data::data(std::uint8_t value)
+		: m_signed(value), m_unsigned()
+	{
+	}
+
+	integer::data::data(double value)
+		: m_signed(), m_unsigned()
+	{
+		range_check_convert(value, m_signed, m_unsigned);
     }
 
     integer::data::data(float value)
-        : m_head(), m_tail()
+		: m_signed(), m_unsigned()
     {
-        // TODO: float -> integer
-    }
+		range_check_convert(value, m_signed, m_unsigned);
+	}
 
     object::data* integer::data::move_to(void* buffer)
     {
@@ -178,37 +279,15 @@ namespace dyn
 
     bool integer::data::as_bool() const
     {
-        return m_head || tail_size();
+        return m_signed || m_unsigned;
     }
 
     void integer::data::output(std::ostream& stream) const
     {
-        if (tail_size())
-        {
-            stream << m_head;
-        }
-        else
-        {
-            // TODO: integer -> ostream
-        }
-    }
-
-    size_t integer::data::tail_size() const
-    {
-        size_t number = max_tail_size;
-        for ( ; number && !m_tail[number - 1]; --number);
-        return number;
-    }
-
-    void integer::data::correct_tail()
-    {
-        static const std::uint64_t tail_top_bit = 1uLL << 63;
-
-        if (!m_head && tail_size() == 1 && !(m_tail[0] & tail_top_bit))
-        {
-            m_head = static_cast<std::int64_t>(m_tail[0]);
-            m_tail[0] = 0;
-        }
+		if (m_unsigned)
+			stream << m_unsigned;
+		else
+			stream << m_signed;
     }
 
     namespace

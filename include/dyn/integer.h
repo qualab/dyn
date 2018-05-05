@@ -3,7 +3,6 @@
 #pragma once
 
 #include <dyn/object.h>
-#include <array>
 
 namespace dyn
 {
@@ -14,17 +13,17 @@ namespace dyn
 
         integer();
 
-        integer(const integer& value);
-        integer& operator = (const integer& value);
+        integer(const integer& another);
+        integer& operator = (const integer& another);
 
         integer(integer&& temorary);
         integer& operator = (integer&& temorary);
 
-        integer(const object& value);
-        integer& operator = (const object& value);
+        integer(const object& another);
+        integer& operator = (const object& another);
 
-        integer(object&& temorary);
-        integer& operator = (object&& temorary);
+        integer(object&& temporary);
+        integer& operator = (object&& temporary);
 
         template <typename value_type>
         integer(value_type value);
@@ -55,20 +54,20 @@ namespace dyn
         template <typename value_type>
         value_type cast_to() const;
 
-        operator std::int64_t() const;
-        operator std::int32_t() const;
-        operator std::int16_t() const;
-        operator std::int8_t() const;
+        explicit operator std::int64_t() const;
+		explicit operator std::int32_t() const;
+		explicit operator std::int16_t() const;
+        explicit operator std::int8_t() const;
 
-        operator std::uint64_t() const;
-        operator std::uint32_t() const;
-        operator std::uint16_t() const;
-        operator std::uint8_t() const;
+		explicit operator std::uint64_t() const;
+		explicit operator std::uint32_t() const;
+		explicit operator std::uint16_t() const;
+		explicit operator std::uint8_t() const;
 
-        operator double() const;
-        operator float() const;
+		explicit operator double() const;
+		explicit operator float() const;
 
-        operator char() const;
+		explicit operator char() const;
 
         integer& operator = (std::int64_t value);
         integer& operator = (std::int32_t value);
@@ -205,14 +204,17 @@ namespace dyn
     public:
         typedef object::data base;
 
-        static const size_t max_tail_size = (max_fields_size - sizeof(std::int64_t)) / sizeof(std::uint64_t);
-
-        typedef std::array<std::uint64_t, max_tail_size> tail_type;
-
         data();
+
         data(std::int64_t value);
-        data(std::int64_t head, std::uint64_t tail);
-        data(std::int64_t head, const tail_type& tail);
+		data(std::int32_t value);
+		data(std::int16_t value);
+		data(std::int8_t value);
+
+		data(std::uint64_t value);
+		data(std::uint32_t value);
+		data(std::uint16_t value);
+		data(std::uint8_t value);
 
         data(double value);
         data(float value);
@@ -225,13 +227,9 @@ namespace dyn
         virtual bool as_bool() const override;
         virtual void output(std::ostream& stream) const override;
 
-        size_t tail_size() const;
-
     private:
-        std::int64_t m_head;
-        tail_type m_tail;
-
-        void correct_tail();
+		std::int64_t m_signed;
+		std::uint64_t m_unsigned;
     };
 
     class integer::exception : public object::exception
@@ -287,6 +285,27 @@ namespace dyn
         : base(value)
     {
     }
+
+	template <> DYN_PUBLIC std::int64_t integer::cast_to() const;
+	template <> DYN_PUBLIC std::int32_t integer::cast_to() const;
+	template <> DYN_PUBLIC std::int16_t integer::cast_to() const;
+	template <> DYN_PUBLIC std::int8_t  integer::cast_to() const;
+
+	template <> DYN_PUBLIC std::uint64_t integer::cast_to() const;
+	template <> DYN_PUBLIC std::uint32_t integer::cast_to() const;
+	template <> DYN_PUBLIC std::uint16_t integer::cast_to() const;
+	template <> DYN_PUBLIC std::uint8_t  integer::cast_to() const;
+
+	template <> DYN_PUBLIC double integer::cast_to() const;
+	template <> DYN_PUBLIC float  integer::cast_to() const;
+
+	template <> DYN_PUBLIC bool integer::cast_to() const;
+
+	template <> DYN_PUBLIC std::string    integer::cast_to() const;
+	template <> DYN_PUBLIC std::wstring   integer::cast_to() const;
+	template <> DYN_PUBLIC std::u32string integer::cast_to() const;
+
+	template <> DYN_PUBLIC char integer::cast_to() const;
 }
 
 // Unicode signature: Владимир Керимов

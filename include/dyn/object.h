@@ -40,7 +40,16 @@ namespace dyn
  
         class data;
 
-        virtual void output_data(std::ostream& stream) const;
+		const data* get_data() const;
+		data* get_data();
+
+		template <typename derived_data_type>
+		const derived_data_type& data_as() const;
+
+		template <typename derived_data_type>
+		derived_data_type& data_as();
+
+		virtual void output_data(std::ostream& stream) const;
 
         bool operator ! () const;
         operator bool() const;
@@ -66,15 +75,6 @@ namespace dyn
     protected:
         template <typename derived_data_type, typename... arg_list>
         derived_data_type* initialize(arg_list... arg);
-
-        template <typename derived_data_type>
-        const derived_data_type& data_as() const;
-
-        template <typename derived_data_type>
-        derived_data_type& data_as();
-
-        const data* get_data() const;
-        data* get_data();
 
         virtual void reset();
         virtual bool as_bool() const;
@@ -116,7 +116,7 @@ namespace dyn
         typedef object::exception base;
         data_size_exception();
     };
-
+ 
     class DYN_PUBLIC object::representation_exception : public object::exception
     {
     public:
