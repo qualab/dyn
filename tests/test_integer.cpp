@@ -10,15 +10,15 @@ namespace dyn
         integer n;
         TEST_CHECK(n).is_false();
         integer z;
-        TEST_CHECK(n) == 0;
+        TEST_CHECK(n) == integer(0);
     }
 
     TEST_SUITE(test_integer_initialization)
     {
         integer x = 123;
-        TEST_CHECK(x) == 123;
+        TEST_CHECK(x) == integer(123);
         integer c = 1234567890uLL;
-        TEST_CHECK(c) == 1234567890uLL;
+        TEST_CHECK(c) == integer(1234567890uLL);
     }
 }
 

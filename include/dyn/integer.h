@@ -6,7 +6,7 @@
 
 namespace dyn
 {
-    class integer : public object
+    class DYN_PUBLIC integer : public object
     {
     public:
         typedef object base;
@@ -26,10 +26,10 @@ namespace dyn
         integer& operator = (object&& temporary);
 
         template <typename value_type>
-        integer(value_type value);
+		explicit integer(value_type value);
 
         template <typename value_type>
-        operator value_type() const;
+		explicit operator value_type() const;
 
         integer(std::int64_t value);
         integer(std::int32_t value);
@@ -41,12 +41,12 @@ namespace dyn
         integer(std::uint16_t value);
         integer(std::uint8_t value);
 
-        integer(double value);
-        integer(float value);
+        explicit integer(double value);
+		explicit integer(float value);
 
-        integer(char value);
+		explicit integer(char value);
 
-        integer(bool value);
+		explicit integer(bool value);
 
         template <typename value_type>
         bool is_of() const;
@@ -54,15 +54,15 @@ namespace dyn
         template <typename value_type>
         value_type cast_to() const;
 
-        explicit operator std::int64_t() const;
-		explicit operator std::int32_t() const;
-		explicit operator std::int16_t() const;
-        explicit operator std::int8_t() const;
+        operator std::int64_t() const;
+		operator std::int32_t() const;
+		operator std::int16_t() const;
+        operator std::int8_t() const;
 
-		explicit operator std::uint64_t() const;
-		explicit operator std::uint32_t() const;
-		explicit operator std::uint16_t() const;
-		explicit operator std::uint8_t() const;
+		operator std::uint64_t() const;
+		operator std::uint32_t() const;
+		operator std::uint16_t() const;
+		operator std::uint8_t() const;
 
 		explicit operator double() const;
 		explicit operator float() const;
@@ -95,74 +95,6 @@ namespace dyn
         bool operator < (const integer& another) const;
         bool operator > (const integer& another) const;
 
-        bool operator == (std::int64_t another) const;
-        bool operator == (std::int32_t another) const;
-        bool operator == (std::int16_t another) const;
-        bool operator == (std::int8_t another) const;
-
-        bool operator == (std::uint64_t another) const;
-        bool operator == (std::uint32_t another) const;
-        bool operator == (std::uint16_t another) const;
-        bool operator == (std::uint8_t another) const;
-
-        bool operator == (double another) const;
-        bool operator == (float another) const;
-
-        bool operator == (char another) const;
-
-        bool operator == (bool another) const;
-
-        bool operator != (std::int64_t another) const;
-        bool operator != (std::int32_t another) const;
-        bool operator != (std::int16_t another) const;
-        bool operator != (std::int8_t another) const;
-
-        bool operator != (std::uint64_t another) const;
-        bool operator != (std::uint32_t another) const;
-        bool operator != (std::uint16_t another) const;
-        bool operator != (std::uint8_t another) const;
-
-        bool operator != (double another) const;
-        bool operator != (float another) const;
-
-        bool operator != (char another) const;
-
-        bool operator != (bool another) const;
-
-        bool operator <= (std::int64_t another) const;
-        bool operator <= (std::int32_t another) const;
-        bool operator <= (std::int16_t another) const;
-        bool operator <= (std::int8_t another) const;
-
-        bool operator <= (std::uint64_t another) const;
-        bool operator <= (std::uint32_t another) const;
-        bool operator <= (std::uint16_t another) const;
-        bool operator <= (std::uint8_t another) const;
-
-        bool operator <= (double another) const;
-        bool operator <= (float another) const;
-
-        bool operator <= (char another) const;
-
-        bool operator <= (bool another) const;
-
-        bool operator >= (std::int64_t another) const;
-        bool operator >= (std::int32_t another) const;
-        bool operator >= (std::int16_t another) const;
-        bool operator >= (std::int8_t another) const;
-
-        bool operator >= (std::uint64_t another) const;
-        bool operator >= (std::uint32_t another) const;
-        bool operator >= (std::uint16_t another) const;
-        bool operator >= (std::uint8_t another) const;
-
-        bool operator >= (double another) const;
-        bool operator >= (float another) const;
-
-        bool operator >= (char another) const;
-
-        bool operator >= (bool another) const;
-
         integer operator + (const integer& another) const;
         integer operator - (const integer& another) const;
         integer operator * (const integer& another) const;
@@ -188,6 +120,7 @@ namespace dyn
         class exception;
         class out_of_range_exception;
         class type_cast_exception;
+		class arithmetic_overflow_exception;
 
         template <typename value_type>
         class out_of_range_exception_of;
@@ -199,7 +132,7 @@ namespace dyn
         data* m_data;
     };
 
-    class integer::data : public object::data
+    class DYN_PUBLIC integer::data : public object::data
     {
     public:
         typedef object::data base;
@@ -224,15 +157,57 @@ namespace dyn
 
         virtual const char* name() const override;
 
-        virtual bool as_bool() const override;
+		virtual bool equals_to(const data& another) const;
+		virtual bool lesser_than(const data& another) const;
+		virtual bool greater_than(const data& another) const;
+
+		virtual void add(const data& another);
+		virtual void sub(const data& another);
+		virtual void mul(const data& another);
+		virtual void div(const data& another);
+
+		virtual void unary_minus();
+
+		virtual void binary_inverse();
+
+		virtual void binary_and(const data& another);
+		virtual void binary_or(const data& another);
+		virtual void binary_xor(const data& another);
+
+		virtual bool as_bool() const override;
         virtual void output(std::ostream& stream) const override;
 
-    private:
+		virtual bool of_int64() const;
+		virtual bool of_int32() const;
+		virtual bool of_int16() const;
+		virtual bool of_int8()  const;
+
+		virtual bool of_uint64() const;
+		virtual bool of_uint32() const;
+		virtual bool of_uint16() const;
+		virtual bool of_uint8()  const;
+
+		virtual std::int64_t as_int64() const;
+		virtual std::int32_t as_int32() const;
+		virtual std::int16_t as_int16() const;
+		virtual std::int8_t  as_int8() const;
+
+		virtual std::uint64_t as_uint64() const;
+		virtual std::uint32_t as_uint32() const;
+		virtual std::uint16_t as_uint16() const;
+		virtual std::uint8_t  as_uint8() const;
+
+		virtual double as_double() const;
+		virtual float as_float() const;
+
+		virtual std::string as_string() const;
+
+	private:
 		std::int64_t m_signed;
 		std::uint64_t m_unsigned;
     };
 
-    class integer::exception : public object::exception
+    class DYN_PUBLIC integer::exception : public object::exception
     {
     public:
         typedef object::exception base;
@@ -240,22 +215,30 @@ namespace dyn
         exception(const std::string& message);
     };
 
-    class integer::out_of_range_exception : public integer::exception
+    class DYN_PUBLIC integer::out_of_range_exception : public integer::exception
     {
     public:
         typedef integer::exception base;
 
-        out_of_range_exception(double value);
-        out_of_range_exception(float value);
+        out_of_range_exception(const std::string& message);
     };
 
-    class integer::type_cast_exception : public integer::exception
+    class DYN_PUBLIC integer::type_cast_exception : public integer::exception
     {
     public:
         typedef integer::exception base;
 
-        type_cast_exception(const integer& value);
+        type_cast_exception(const std::string& message);
     };
+
+	class DYN_PUBLIC integer::arithmetic_overflow_exception : public integer::exception
+	{
+	public:
+		typedef integer::exception base;
+
+		arithmetic_overflow_exception(const std::string& operation, const integer::data& single);
+		arithmetic_overflow_exception(const std::string& operation, const integer::data& left, const integer::data& right);
+	};
 
     template <typename value_type>
     class integer::out_of_range_exception_of : public integer::out_of_range_exception
@@ -264,27 +247,57 @@ namespace dyn
         typedef out_of_range_exception base;
 
         out_of_range_exception_of(value_type value);
+
+	private:
+		static std::string gen_message(value_type value);
     };
 
     template <typename value_type>
     class integer::type_cast_exception_of : public integer::type_cast_exception
     {
+	public:
         typedef integer::type_cast_exception base;
 
         type_cast_exception_of(const integer& value);
+
+	private:
+		static std::string gen_message(const integer& value);
     };
+
+	template <typename value_type>
+	integer::integer(value_type value)
+		: m_data(initialize<data>())
+	{
+		*this = value;
+	}
+
+	template <typename value_type>
+	integer::operator value_type() const
+	{
+		return cast_to<value_type>();
+	}
 
     template <typename value_type>
     integer::out_of_range_exception_of<value_type>::out_of_range_exception_of(value_type value)
-        : base(value)
+        : base(gen_message(value))
     {
     }
 
     template <typename value_type>
     integer::type_cast_exception_of<value_type>::type_cast_exception_of(const integer& value)
-        : base(value)
+        : base(gen_message(value))
     {
     }
+
+	template <> DYN_PUBLIC bool integer::is_of<std::int64_t>() const;
+	template <> DYN_PUBLIC bool integer::is_of<std::int32_t>() const;
+	template <> DYN_PUBLIC bool integer::is_of<std::int16_t>() const;
+	template <> DYN_PUBLIC bool integer::is_of<std::int8_t>() const;
+
+	template <> DYN_PUBLIC bool integer::is_of<std::uint64_t>() const;
+	template <> DYN_PUBLIC bool integer::is_of<std::uint32_t>() const;
+	template <> DYN_PUBLIC bool integer::is_of<std::uint16_t>() const;
+	template <> DYN_PUBLIC bool integer::is_of<std::uint8_t>() const;
 
 	template <> DYN_PUBLIC std::int64_t integer::cast_to() const;
 	template <> DYN_PUBLIC std::int32_t integer::cast_to() const;
@@ -306,6 +319,22 @@ namespace dyn
 	template <> DYN_PUBLIC std::u32string integer::cast_to() const;
 
 	template <> DYN_PUBLIC char integer::cast_to() const;
+
+	template <> DYN_PUBLIC std::string integer::out_of_range_exception_of<double>::gen_message(double value);
+	template <> DYN_PUBLIC std::string integer::out_of_range_exception_of<float>::gen_message(float value);
+
+	template <> DYN_PUBLIC std::string integer::type_cast_exception_of<std::int64_t>::gen_message(const integer& value);
+	template <> DYN_PUBLIC std::string integer::type_cast_exception_of<std::int32_t>::gen_message(const integer& value);
+	template <> DYN_PUBLIC std::string integer::type_cast_exception_of<std::int16_t>::gen_message(const integer& value);
+	template <> DYN_PUBLIC std::string integer::type_cast_exception_of<std::int8_t>::gen_message(const integer& value);
+
+	template <> DYN_PUBLIC std::string integer::type_cast_exception_of<std::uint64_t>::gen_message(const integer& value);
+	template <> DYN_PUBLIC std::string integer::type_cast_exception_of<std::uint32_t>::gen_message(const integer& value);
+	template <> DYN_PUBLIC std::string integer::type_cast_exception_of<std::uint16_t>::gen_message(const integer& value);
+	template <> DYN_PUBLIC std::string integer::type_cast_exception_of<std::uint8_t>::gen_message(const integer& value);
+
+	template <> DYN_PUBLIC std::string integer::type_cast_exception_of<double>::gen_message(const integer& value);
+	template <> DYN_PUBLIC std::string integer::type_cast_exception_of<float>::gen_message(const integer& value);
 }
 
 // Unicode signature: Владимир Керимов
