@@ -273,6 +273,97 @@ namespace dyn
 		return m_data->greater_than(*another.m_data);
 	}
 
+	integer integer::operator + (const integer& another) const
+	{
+		integer result = *this;
+		return result += another;
+	}
+
+	integer integer::operator - (const integer& another) const
+	{
+		integer result = *this;
+		return result -= another;
+	}
+
+	integer integer::operator * (const integer& another) const
+	{
+		integer result = *this;
+		return result *= another;
+	}
+
+	integer integer::operator / (const integer& another) const
+	{
+		integer result = *this;
+		return result /= another;
+	}
+
+	integer& integer::operator += (const integer& another)
+	{
+		m_data->add(*another.m_data);
+		return *this;
+	}
+
+	integer& integer::operator -= (const integer& another)
+	{
+		m_data->sub(*another.m_data);
+		return *this;
+	}
+
+	integer& integer::operator *= (const integer& another)
+	{
+		m_data->mul(*another.m_data);
+		return *this;
+	}
+
+	integer& integer::operator /= (const integer& another)
+	{
+		m_data->div(*another.m_data);
+		return *this;
+	}
+
+	integer integer::operator ~ () const
+	{
+		integer result;
+		result.m_data->binary_inverse();
+		return result;
+	}
+
+	integer integer::operator & (const integer& another) const
+	{
+		integer result;
+		return result &= another;
+	}
+
+	integer integer::operator | (const integer& another) const
+	{
+		integer result;
+		return result |= another;
+	}
+
+	integer integer::operator ^ (const integer& another) const
+	{
+		integer result;
+		return result ^= another;
+	}
+
+	integer& integer::operator &= (const integer& another)
+	{
+		m_data->binary_and(*another.m_data);
+		return *this;
+	}
+
+	integer& integer::operator |= (const integer& another)
+	{
+		m_data->binary_or(*another.m_data);
+		return *this;
+	}
+
+	integer& integer::operator ^= (const integer& another)
+	{
+		m_data->binary_xor(*another.m_data);
+		return *this;
+	}
+
 	template <> bool integer::is_of<std::int64_t>() const
 	{
 		return m_data->of_int64();
@@ -525,9 +616,15 @@ namespace dyn
 			return m_unsigned;
 	}
 
+	namespace
+	{
+		constexpr std::uint64_t max_signed_u64 = std::numeric_limits<std::int64_t>::max();
+	}
+
 	void integer::data::add(const data& another)
 	{
 		static const char* const operation_name = "addition";
+
 		if (m_unsigned && another.m_unsigned)
 		{
 			std::uint64_t result = m_unsigned + another.m_unsigned;
@@ -535,16 +632,19 @@ namespace dyn
 				throw arithmetic_overflow_exception(operation_name, *this, another);
 			m_unsigned = result;
 		}
-		else if (m_signed && m_signed)
+		else if (m_signed && another.m_signed)
 		{
 			if (m_signed >= 0 && another.m_signed >= 0)
 			{
-				std::int64_t result = m_signed + another.m_signed;
-				if (result >= 0)
-					m_signed = result;
+				std::uint64_t result = static_cast<std::uint64_t>(m_signed) + static_cast<std::uint64_t>(another.m_signed);
+				if (result <= max_signed_u64)
+				{
+					m_signed = static_cast<std::int64_t>(result);
+					m_unsigned = 0;
+				}
 				else
 				{
-					m_unsigned = static_cast<std::uint64_t>(result);
+					m_unsigned = result;
 					m_signed = 0;
 				}
 			}
@@ -583,12 +683,16 @@ namespace dyn
 			}
 			else
 			{
-				static const std::uint64_t max_signed = std::numeric_limits<std::int64_t>::max();
-				m_unsigned = greater - static_cast<std::uint64_t>(-lesser);
-				if (m_unsigned <= max_signed)
+				std::uint64_t result = greater - static_cast<std::uint64_t>(-lesser);
+				if (result <= max_signed_u64)
 				{
-					m_signed = static_cast<std::int64_t>(m_unsigned);
+					m_signed = static_cast<std::int64_t>(result);
 					m_unsigned = 0;
+				}
+				else
+				{
+					m_unsigned = result;
+					m_signed = 0;
 				}
 			}
 		}
@@ -596,14 +700,94 @@ namespace dyn
 
 	void integer::data::sub(const data& another)
 	{
+		if (m_unsigned && another.m_unsigned)
+		{
+			if (m_unsigned >= another.m_unsigned)
+			{
+				m_signed = static_cast<std::int64_t>(m_unsigned - another.m_unsigned);
+			}
+			else
+			{
+				m_signed = static_cast<std::int64_t>(another.m_unsigned - m_unsigned);
+			}
+		}
+		else if (!another.m_unsigned)
+		{
+			integer::data negated = another;
+			negated.unary_minus();
+			add(negated);
+		}
+		else
+		{
+			integer::data negated = another;
+			negated.sub(*this);
+			negated.unary_minus();
+			*this = negated;
+		}
 	}
 
 	void integer::data::mul(const data& another)
 	{
+		static const char* const operation_name = "multiplication";
+
+		bool this_negative = !m_unsigned && m_signed < 0;
+		bool another_negative = !another.m_unsigned && another.m_signed < 0;
+		bool result_negative = this_negative ^ another_negative;
+
+		std::uint64_t left = m_unsigned ? m_unsigned : static_cast<std::int64_t>(std::abs(m_signed));
+		std::uint64_t right = another.m_unsigned ? another.m_unsigned : static_cast<std::int64_t>(std::abs(another.m_signed));
+
+		std::uint64_t result = left * right;
+
+		if (result < left && result < right)
+			throw arithmetic_overflow_exception(operation_name, *this, another);
+
+		if (result <= max_signed_u64)
+		{
+			m_signed = static_cast<std::int64_t>(result);
+			if (result_negative)
+				m_signed = -m_signed;
+			m_unsigned = 0;
+		}
+		else if (!result_negative)
+		{
+			m_unsigned = result;
+			m_signed = 0;
+		}
+		else
+			throw arithmetic_overflow_exception(operation_name, *this, another);
 	}
 
 	void integer::data::div(const data& another)
 	{
+		static const char* const operation_name = "division";
+
+		if (!another.as_bool())
+			throw arithmetic_overflow_exception(operation_name, *this, another);
+
+		bool this_negative = !m_unsigned && m_signed < 0;
+		bool another_negative = !another.m_unsigned && another.m_signed < 0;
+		bool result_negative = this_negative ^ another_negative;
+
+		std::uint64_t left = m_unsigned ? m_unsigned : static_cast<std::int64_t>(std::abs(m_signed));
+		std::uint64_t right = another.m_unsigned ? another.m_unsigned : static_cast<std::int64_t>(std::abs(another.m_signed));
+
+		std::uint64_t result = left / right;
+
+		if (result <= max_signed_u64)
+		{
+			m_signed = static_cast<std::int64_t>(result);
+			if (result_negative)
+				m_signed = -m_signed;
+			m_unsigned = 0;
+		}
+		else if (!result_negative)
+		{
+			m_unsigned = result;
+			m_signed = 0;
+		}
+		else
+			throw arithmetic_overflow_exception(operation_name, *this, another);
 	}
 
 	void integer::data::unary_minus()
