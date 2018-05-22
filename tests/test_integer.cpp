@@ -1,4 +1,4 @@
-﻿// test shared reference with copy-on-write mechanism
+﻿// Test common integer class for basic operations
 
 #include <dyn/integer.h>
 #include <limits>
@@ -6,21 +6,21 @@
 
 namespace dyn
 {
-    TEST_SUITE(test_integer_default)
-    {
-        integer n;
-        TEST_CHECK(n).is_false();
-        integer z;
-        TEST_CHECK(n) == integer(0);
-    }
+	TEST_SUITE(test_integer_default)
+	{
+		integer n;
+		TEST_CHECK(n).is_false();
+		integer z;
+		TEST_CHECK(n) == integer(0);
+	}
 
-    TEST_SUITE(test_integer_initialization)
-    {
-        integer x = 123;
-        TEST_CHECK(x) == integer(123);
-        integer c = 1234567890uLL;
-        TEST_CHECK(c) == integer(1234567890uLL);
-    }
+	TEST_SUITE(test_integer_initialization)
+	{
+		integer x = 123;
+		TEST_CHECK(x) == integer(123);
+		integer c = 1234567890uLL;
+		TEST_CHECK(c) == integer(1234567890uLL);
+	}
 
 	TEST_SUITE(test_integer_addition)
 	{
@@ -36,6 +36,20 @@ namespace dyn
 		integer I64max = std::numeric_limits<std::int64_t>::max();
 		TEST_CHECK(U64max + I64min) == I64max;
 		TEST_CHECK(I64min + I64max) == integer(-1);
+	}
+
+	TEST_SUITE(test_integer_float)
+	{
+		integer x(0.5f);
+		TEST_CHECK(x) == integer(0);
+		x = 3.14f;
+		TEST_CHECK(x) == integer(3);
+		x = integer(-1.23f);
+		TEST_CHECK(x) == integer(-1);
+		x = 1e+19f;
+		TEST_CHECK(x) == 10000000000000000000uLL;
+		x = 1e+18f;
+		TEST_CHECK(x) == 1000000000000000000LL;
 	}
 }
 

@@ -534,11 +534,40 @@ namespace dyn
 	namespace
 	{
 		template <typename float_type>
+		struct converter_const;
+
+		template <> struct converter_const<float>
+		{
+			static constexpr std::uint64_t lossy = 1000000000000;
+		};
+
+		template <> struct converter_const<double>
+		{
+			static constexpr std::uint64_t lossy = 1000;
+		};
+
+		template <typename result_type, typename float_type>
+		result_type round_lossless(float_type value)
+		{
+			result_type result = static_cast<result_type>(value);
+			static constexpr result_type lossy(converter_const<float_type>::lossy);
+			result_type mod = result % lossy;
+			if (mod)
+			{
+				if (mod <= lossy / 2)
+					result -= mod;
+				else
+					result += lossy - mod;
+			}
+			return result;
+		}
+
+		template <typename float_type>
 		void range_check_convert(float_type value, std::int64_t& signed_value, std::uint64_t& unsigned_value)
 		{
-			static const float_type min_signed = static_cast<float_type>(std::numeric_limits<std::int64_t>::min());
-			static const float_type max_signed = static_cast<float_type>(std::numeric_limits<std::int64_t>::max());
-			static const float_type max_unsigned = static_cast<float_type>(std::numeric_limits<std::uint64_t>::max());
+			static constexpr float_type min_signed = static_cast<float_type>(std::numeric_limits<std::int64_t>::min());
+			static constexpr float_type max_signed = static_cast<float_type>(std::numeric_limits<std::int64_t>::max());
+			static constexpr float_type max_unsigned = static_cast<float_type>(std::numeric_limits<std::uint64_t>::max());
 
 			if (value >= min_signed && value <= max_signed)
 			{
@@ -548,7 +577,7 @@ namespace dyn
 			else if (value <= max_unsigned)
 			{
 				signed_value = 0;
-				unsigned_value = static_cast<std::uint64_t>(value);
+				unsigned_value = round_lossless<std::uint64_t>(value);
 			}
 			else
 			{
