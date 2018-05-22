@@ -533,24 +533,58 @@ namespace dyn
 
 	namespace
 	{
-		template <typename float_type>
-		struct converter_const;
+		constexpr std::uint64_t pow10[] = {
+			1uLL,
+			10uLL,
+			100uLL,
+			1000uLL,
+			10000uLL,
+			100000uLL,
+			1000000uLL,
+			10000000uLL,
+			100000000uLL,
+			1000000000uLL,
+			10000000000uLL,
+			100000000000uLL,
+			1000000000000uLL,
+			10000000000000uLL,
+			100000000000000uLL,
+			1000000000000000uLL,
+			10000000000000000uLL,
+			100000000000000000uLL,
+			1000000000000000000uLL,
+			10000000000000000000uLL,
+		};
 
-		template <> struct converter_const<float>
+		int int64_digits(std::int64_t value)
+		{
+			std::uint64_t number(std::abs(value));
+			int result = 1;
+			for (; result < 19; ++result)
+			{
+				if (number < pow10[result])
+					break;
+			}
+			return result;
+		}
+
+		template <typename float_type>
+		struct uint64_from;
+
+		template <> struct uint64_from<float>
 		{
 			static constexpr std::uint64_t lossy = 1000000000000;
 		};
 
-		template <> struct converter_const<double>
+		template <> struct uint64_from<double>
 		{
 			static constexpr std::uint64_t lossy = 1000;
 		};
 
-		template <typename result_type, typename float_type>
-		result_type round_lossless(float_type value)
+		template <typename float_type, typename result_type>
+		result_type round_lossless(float_type value, result_type lossy)
 		{
 			result_type result = static_cast<result_type>(value);
-			static constexpr result_type lossy(converter_const<float_type>::lossy);
 			result_type mod = result % lossy;
 			if (mod)
 			{
@@ -573,11 +607,19 @@ namespace dyn
 			{
 				signed_value = static_cast<std::int64_t>(value);
 				unsigned_value = 0;
+
+				int digits = int64_digits(signed_value);
+				int lost = digits - std::numeric_limits<float_type>::digits10;
+				if (lost > 0)
+				{
+					std::int64_t lossy(pow10[lost]);
+					signed_value = round_lossless(value, lossy);
+				}
 			}
 			else if (value <= max_unsigned)
 			{
 				signed_value = 0;
-				unsigned_value = round_lossless<std::uint64_t>(value);
+				unsigned_value = round_lossless(value, uint64_from<float_type>::lossy);
 			}
 			else
 			{
