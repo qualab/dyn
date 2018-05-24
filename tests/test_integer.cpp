@@ -46,12 +46,12 @@ namespace dyn
         TEST_CHECK(x) == integer(3);
         x = integer(-1.23f);
         TEST_CHECK(x) == integer(-1);
-        x = 1e+19f;
-        TEST_CHECK(x) == 10000000000000000000uLL;
-        x = 1e+18f;
-        TEST_CHECK(x) == 1000000000000000000LL;
-        x = -1e+18f;
-        TEST_CHECK(x) == -1000000000000000000LL;
+        x = 1.84467e+19f;
+        TEST_CHECK(x) == 18446700000000000000uLL;
+        x = 9.22337e+18f;
+        TEST_CHECK(x) == 9223370000000000000LL;
+        x = -9.22337e+18f;
+        TEST_CHECK(x) == -9223370000000000000LL;
     }
 }
 

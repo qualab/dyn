@@ -559,8 +559,10 @@ namespace dyn
         int int64_digits(std::int64_t value)
         {
             std::uint64_t number(std::abs(value));
-            int result = 1;
-            for (; result < 19; ++result)
+            static constexpr int int64_min_digits = 1;
+            static constexpr int int64_max_digits = 19;
+            int result = int64_min_digits;
+            for (; result < int64_max_digits; ++result)
             {
                 if (number < pow10[result])
                     break;
