@@ -570,19 +570,6 @@ namespace dyn
             return result;
         }
 
-        template <typename float_type>
-        struct uint64_from;
-
-        template <> struct uint64_from<float>
-        {
-            static constexpr std::uint64_t lossy = 1000000000000;
-        };
-
-        template <> struct uint64_from<double>
-        {
-            static constexpr std::uint64_t lossy = 1000;
-        };
-
         template <typename float_type, typename result_type>
         result_type round_lossless(float_type value, result_type lossy)
         {
@@ -606,6 +593,9 @@ namespace dyn
             static constexpr float_type max_signed = static_cast<float_type>(std::numeric_limits<std::int64_t>::max());
             static constexpr float_type max_unsigned = static_cast<float_type>(std::numeric_limits<std::uint64_t>::max());
 
+            // common case: convert floating point value to signed 64-bit integer
+            // floating point is lossy format, integer must be rounded
+            // lossless round depends of how many decimal digits may contain in mantissa
             if (value >= min_signed && value <= max_signed)
             {
                 signed_value = static_cast<std::int64_t>(value);
@@ -620,10 +610,15 @@ namespace dyn
                                               : -round_lossless(-value, lossy);
                 }
             }
-            else if (value <= max_unsigned)
+            // case when floating point value can be represented as unsigned 64-bit integer
+            // but it is too big for signed 64-bit integer
+            else if (value >= 0 && value <= max_unsigned)
             {
+                // 19 digits because of 20th higher (if present) is always 1 for biggest unsigned
+                // 1 is default for floating-point format and not found in mantissa
+                static constexpr std::uint64_t lossy = pow10[19 - std::numeric_limits<float_type>::digits10];
                 signed_value = 0;
-                unsigned_value = round_lossless(value, uint64_from<float_type>::lossy);
+                unsigned_value = round_lossless(value, lossy);
             }
             else
             {
