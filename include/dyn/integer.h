@@ -99,11 +99,13 @@ namespace dyn
         integer operator - (const integer& another) const;
         integer operator * (const integer& another) const;
         integer operator / (const integer& another) const;
+        integer operator % (const integer& another) const;
 
         integer& operator += (const integer& another);
         integer& operator -= (const integer& another);
         integer& operator *= (const integer& another);
         integer& operator /= (const integer& another);
+        integer& operator %= (const integer& another);
 
         integer operator ~ () const;
 
@@ -165,6 +167,7 @@ namespace dyn
         virtual void sub(const data& another);
         virtual void mul(const data& another);
         virtual void div(const data& another);
+        virtual void mod(const data& another);
 
         virtual void unary_minus();
 

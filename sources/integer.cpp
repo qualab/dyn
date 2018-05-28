@@ -297,6 +297,12 @@ namespace dyn
         return result /= another;
     }
 
+    integer integer::operator % (const integer& another) const
+    {
+        integer result = *this;
+        return result %= another;
+    }
+
     integer& integer::operator += (const integer& another)
     {
         m_data->add(*another.m_data);
@@ -318,6 +324,12 @@ namespace dyn
     integer& integer::operator /= (const integer& another)
     {
         m_data->div(*another.m_data);
+        return *this;
+    }
+
+    integer& integer::operator %= (const integer& another)
+    {
+        m_data->mod(*another.m_data);
         return *this;
     }
 
@@ -688,7 +700,8 @@ namespace dyn
 
     namespace
     {
-        constexpr std::uint64_t max_signed_u64 = std::numeric_limits<std::int64_t>::max();
+        constexpr std::uint64_t max_signed_uint64(std::numeric_limits<std::int64_t>::max());
+        constexpr std::uint64_t min_signed_uint64(std::numeric_limits<std::int64_t>::min());
     }
 
     void integer::data::add(const data& another)
@@ -707,7 +720,7 @@ namespace dyn
             if (m_signed >= 0 && another.m_signed >= 0)
             {
                 std::uint64_t result = static_cast<std::uint64_t>(m_signed) + static_cast<std::uint64_t>(another.m_signed);
-                if (result <= max_signed_u64)
+                if (result <= max_signed_uint64)
                 {
                     m_signed = static_cast<std::int64_t>(result);
                     m_unsigned = 0;
@@ -754,7 +767,7 @@ namespace dyn
             else
             {
                 std::uint64_t result = greater - static_cast<std::uint64_t>(-lesser);
-                if (result <= max_signed_u64)
+                if (result <= max_signed_uint64)
                 {
                     m_signed = static_cast<std::int64_t>(result);
                     m_unsigned = 0;
@@ -778,7 +791,7 @@ namespace dyn
             }
             else
             {
-                m_signed = static_cast<std::int64_t>(another.m_unsigned - m_unsigned);
+                m_signed = -static_cast<std::int64_t>(another.m_unsigned - m_unsigned);
             }
         }
         else if (!another.m_unsigned)
@@ -796,36 +809,88 @@ namespace dyn
         }
     }
 
+    namespace
+    {
+        std::uint64_t safe_abs(std::int64_t value)
+        {
+            if (value >= 0 || value == std::numeric_limits<std::int64_t>::min())
+                return static_cast<std::uint64_t>(value);
+            else
+                return static_cast<std::uint64_t>(-value);
+        }
+
+        // if possible convert integer with the sign specified
+        // returns false when arithmetic overflow must be thrown
+        bool safe_sign(bool negative, std::uint64_t& unsigned_value, std::int64_t& signed_value)
+        {
+            if (unsigned_value)
+            {
+                if (unsigned_value <= max_signed_uint64)
+                {
+                    signed_value = negative ? -static_cast<std::int64_t>(unsigned_value)
+                        : static_cast<std::int64_t>(unsigned_value);
+                    unsigned_value = 0;
+                }
+                else if (negative && unsigned_value == min_signed_uint64)
+                {
+                    signed_value = static_cast<std::int64_t>(unsigned_value);
+                    unsigned_value = 0;
+                }
+                else
+                {
+                    signed_value = 0;
+                    return !negative;
+                }
+            }
+            else
+            {
+                if (!negative && signed_value == std::numeric_limits<std::int64_t>::min())
+                {
+                    unsigned_value = min_signed_uint64;
+                    signed_value = 0;
+                }
+                else
+                {
+                    signed_value = -signed_value;
+                }
+            }
+            return true;
+        }
+
+        bool is_negative(std::uint64_t unsigned_value, std::int64_t signed_value)
+        {
+            return !unsigned_value && signed_value < 0;
+        }
+
+        bool sign_and_sides(std::uint64_t& left,           std::uint64_t& right,
+                            std::uint64_t  left_unsigned,  std::uint64_t  right_unsigned,
+                            std::int64_t   left_signed,    std::int64_t   right_signed)
+        {
+            bool left_negative  = is_negative(left_unsigned,  left_signed);
+            bool right_negative = is_negative(right_unsigned, right_signed);
+
+            left  = left_unsigned  ? left_unsigned  : safe_abs(left_signed);
+            right = right_unsigned ? right_unsigned : safe_abs(right_signed);
+
+            return left_negative ^ right_negative;
+        }
+    }
+
     void integer::data::mul(const data& another)
     {
         static const char* const operation_name = "multiplication";
 
-        bool this_negative = !m_unsigned && m_signed < 0;
-        bool another_negative = !another.m_unsigned && another.m_signed < 0;
-        bool result_negative = this_negative ^ another_negative;
+        std::uint64_t left, right;
+        bool negative = sign_and_sides(left,       right,
+                                       m_unsigned, another.m_unsigned,
+                                       m_signed,   another.m_signed);
+        m_unsigned = left * right;
 
-        std::uint64_t left = m_unsigned ? m_unsigned : static_cast<std::int64_t>(std::abs(m_signed));
-        std::uint64_t right = another.m_unsigned ? another.m_unsigned : static_cast<std::int64_t>(std::abs(another.m_signed));
-
-        std::uint64_t result = left * right;
-
-        if (result < left && result < right)
-            throw arithmetic_overflow_exception(operation_name, *this, another);
-
-        if (result <= max_signed_u64)
+        if (m_unsigned < left && m_unsigned < right
+                || !safe_sign(negative, m_unsigned, m_signed))
         {
-            m_signed = static_cast<std::int64_t>(result);
-            if (result_negative)
-                m_signed = -m_signed;
-            m_unsigned = 0;
-        }
-        else if (!result_negative)
-        {
-            m_unsigned = result;
-            m_signed = 0;
-        }
-        else
             throw arithmetic_overflow_exception(operation_name, *this, another);
+        }
     }
 
     void integer::data::div(const data& another)
@@ -835,34 +900,41 @@ namespace dyn
         if (!another.as_bool())
             throw arithmetic_overflow_exception(operation_name, *this, another);
 
-        bool this_negative = !m_unsigned && m_signed < 0;
-        bool another_negative = !another.m_unsigned && another.m_signed < 0;
-        bool result_negative = this_negative ^ another_negative;
+        std::uint64_t left, right;
+        bool negative = sign_and_sides(left,       right,
+                                       m_unsigned, another.m_unsigned,
+                                       m_signed,   another.m_signed);
+        m_unsigned = left / right;
 
-        std::uint64_t left = m_unsigned ? m_unsigned : static_cast<std::int64_t>(std::abs(m_signed));
-        std::uint64_t right = another.m_unsigned ? another.m_unsigned : static_cast<std::int64_t>(std::abs(another.m_signed));
+        if (!safe_sign(negative, m_unsigned, m_signed))
+            throw arithmetic_overflow_exception(operation_name, *this, another);
+    }
 
-        std::uint64_t result = left / right;
+    void integer::data::mod(const data& another)
+    {
+        static const char* const operation_name = "module";
 
-        if (result <= max_signed_u64)
-        {
-            m_signed = static_cast<std::int64_t>(result);
-            if (result_negative)
-                m_signed = -m_signed;
-            m_unsigned = 0;
-        }
-        else if (!result_negative)
-        {
-            m_unsigned = result;
-            m_signed = 0;
-        }
-        else
+        if (!another.as_bool())
+            throw arithmetic_overflow_exception(operation_name, *this, another);
+
+        std::uint64_t left, right;
+        bool negative = sign_and_sides(left,       right,
+                                       m_unsigned, another.m_unsigned,
+                                       m_signed,   another.m_signed);
+        m_unsigned = left % right;
+
+        if (!safe_sign(negative, m_unsigned, m_signed))
             throw arithmetic_overflow_exception(operation_name, *this, another);
     }
 
     void integer::data::unary_minus()
     {
-        m_signed = -m_signed;
+        static const char* const operation_name = "negation";
+
+        bool negative = !is_negative(m_unsigned, m_signed);
+
+        if (!safe_sign(negative, m_unsigned, m_signed))
+            throw arithmetic_overflow_exception(operation_name, *this);
     }
 
     void integer::data::binary_inverse()
