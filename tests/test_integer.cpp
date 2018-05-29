@@ -38,10 +38,27 @@ namespace dyn
         integer U64max = std::numeric_limits<std::uint64_t>::max();
         TEST_CHECK([U64max]() { U64max + 1; }).expect_exception<integer::arithmetic_overflow_exception>();
         integer I64min = std::numeric_limits<std::int64_t>::min();
-        TEST_CHECK([I64min]() { I64min - 1; }).expect_exception<integer::arithmetic_overflow_exception>();
         integer I64max = std::numeric_limits<std::int64_t>::max();
         TEST_CHECK(U64max + I64min) == std::numeric_limits<std::int64_t>::max();
         TEST_CHECK(I64min + I64max) == -1;
+        TEST_CHECK(I64min + l) == 1 + I64min;
+        TEST_CHECK(l + I64min) == I64min + 1;
+        TEST_CHECK(-1 + I64max) == I64max - l;
+    }
+
+    TEST_SUITE(test_integer_subtraction)
+    {
+        integer o = 0;
+        integer l = 1;
+        TEST_CHECK(o - l) == -1;
+        TEST_CHECK(l - o) == 1;
+        TEST_CHECK(l - l) == 0;
+        TEST_CHECK(o - o) == 0;
+        integer I64min = std::numeric_limits<std::int64_t>::min();
+        integer I64max = std::numeric_limits<std::int64_t>::max();
+        TEST_CHECK([I64min]() { I64min - 1; }).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK(I64max - l) == I64max - 1;
+        TEST_CHECK(1 - I64max) == l - I64max;
     }
 
     TEST_SUITE(test_integer_float)

@@ -459,145 +459,145 @@ namespace dyn
     inline bool operator < (std::uint16_t left, const integer& right) { return integer(left) < right; }
     inline bool operator < (std::uint8_t  left, const integer& right) { return integer(left) < right; }
 
-    inline bool operator + (const integer& left, std::int64_t right) { return left + integer(right); }
-    inline bool operator + (const integer& left, std::int32_t right) { return left + integer(right); }
-    inline bool operator + (const integer& left, std::int16_t right) { return left + integer(right); }
-    inline bool operator + (const integer& left, std::int8_t  right) { return left + integer(right); }
+    inline integer operator + (const integer& left, std::int64_t right) { return left + integer(right); }
+    inline integer operator + (const integer& left, std::int32_t right) { return left + integer(right); }
+    inline integer operator + (const integer& left, std::int16_t right) { return left + integer(right); }
+    inline integer operator + (const integer& left, std::int8_t  right) { return left + integer(right); }
 
-    inline bool operator + (const integer& left, std::uint64_t right) { return left + integer(right); }
-    inline bool operator + (const integer& left, std::uint32_t right) { return left + integer(right); }
-    inline bool operator + (const integer& left, std::uint16_t right) { return left + integer(right); }
-    inline bool operator + (const integer& left, std::uint8_t  right) { return left + integer(right); }
+    inline integer operator + (const integer& left, std::uint64_t right) { return left + integer(right); }
+    inline integer operator + (const integer& left, std::uint32_t right) { return left + integer(right); }
+    inline integer operator + (const integer& left, std::uint16_t right) { return left + integer(right); }
+    inline integer operator + (const integer& left, std::uint8_t  right) { return left + integer(right); }
 
-    inline bool operator + (std::int64_t left, const integer& right) { return integer(left) + right; }
-    inline bool operator + (std::int32_t left, const integer& right) { return integer(left) + right; }
-    inline bool operator + (std::int16_t left, const integer& right) { return integer(left) + right; }
-    inline bool operator + (std::int8_t  left, const integer& right) { return integer(left) + right; }
+    inline integer operator + (std::int64_t left, const integer& right) { return integer(left) + right; }
+    inline integer operator + (std::int32_t left, const integer& right) { return integer(left) + right; }
+    inline integer operator + (std::int16_t left, const integer& right) { return integer(left) + right; }
+    inline integer operator + (std::int8_t  left, const integer& right) { return integer(left) + right; }
 
-    inline bool operator + (std::uint64_t left, const integer& right) { return integer(left) + right; }
-    inline bool operator + (std::uint32_t left, const integer& right) { return integer(left) + right; }
-    inline bool operator + (std::uint16_t left, const integer& right) { return integer(left) + right; }
-    inline bool operator + (std::uint8_t  left, const integer& right) { return integer(left) + right; }
+    inline integer operator + (std::uint64_t left, const integer& right) { return integer(left) + right; }
+    inline integer operator + (std::uint32_t left, const integer& right) { return integer(left) + right; }
+    inline integer operator + (std::uint16_t left, const integer& right) { return integer(left) + right; }
+    inline integer operator + (std::uint8_t  left, const integer& right) { return integer(left) + right; }
 
-    inline bool operator - (const integer& left, std::int64_t right) { return left - integer(right); }
-    inline bool operator - (const integer& left, std::int32_t right) { return left - integer(right); }
-    inline bool operator - (const integer& left, std::int16_t right) { return left - integer(right); }
-    inline bool operator - (const integer& left, std::int8_t  right) { return left - integer(right); }
+    inline integer operator - (const integer& left, std::int64_t right) { return left - integer(right); }
+    inline integer operator - (const integer& left, std::int32_t right) { return left - integer(right); }
+    inline integer operator - (const integer& left, std::int16_t right) { return left - integer(right); }
+    inline integer operator - (const integer& left, std::int8_t  right) { return left - integer(right); }
 
-    inline bool operator - (const integer& left, std::uint64_t right) { return left - integer(right); }
-    inline bool operator - (const integer& left, std::uint32_t right) { return left - integer(right); }
-    inline bool operator - (const integer& left, std::uint16_t right) { return left - integer(right); }
-    inline bool operator - (const integer& left, std::uint8_t  right) { return left - integer(right); }
+    inline integer operator - (const integer& left, std::uint64_t right) { return left - integer(right); }
+    inline integer operator - (const integer& left, std::uint32_t right) { return left - integer(right); }
+    inline integer operator - (const integer& left, std::uint16_t right) { return left - integer(right); }
+    inline integer operator - (const integer& left, std::uint8_t  right) { return left - integer(right); }
 
-    inline bool operator - (std::int64_t left, const integer& right) { return integer(left) - right; }
-    inline bool operator - (std::int32_t left, const integer& right) { return integer(left) - right; }
-    inline bool operator - (std::int16_t left, const integer& right) { return integer(left) - right; }
-    inline bool operator - (std::int8_t  left, const integer& right) { return integer(left) - right; }
+    inline integer operator - (std::int64_t left, const integer& right) { return integer(left) - right; }
+    inline integer operator - (std::int32_t left, const integer& right) { return integer(left) - right; }
+    inline integer operator - (std::int16_t left, const integer& right) { return integer(left) - right; }
+    inline integer operator - (std::int8_t  left, const integer& right) { return integer(left) - right; }
 
-    inline bool operator - (std::uint64_t left, const integer& right) { return integer(left) - right; }
-    inline bool operator - (std::uint32_t left, const integer& right) { return integer(left) - right; }
-    inline bool operator - (std::uint16_t left, const integer& right) { return integer(left) - right; }
-    inline bool operator - (std::uint8_t  left, const integer& right) { return integer(left) - right; }
+    inline integer operator - (std::uint64_t left, const integer& right) { return integer(left) - right; }
+    inline integer operator - (std::uint32_t left, const integer& right) { return integer(left) - right; }
+    inline integer operator - (std::uint16_t left, const integer& right) { return integer(left) - right; }
+    inline integer operator - (std::uint8_t  left, const integer& right) { return integer(left) - right; }
 
-    inline bool operator * (const integer& left, std::int64_t right) { return left * integer(right); }
-    inline bool operator * (const integer& left, std::int32_t right) { return left * integer(right); }
-    inline bool operator * (const integer& left, std::int16_t right) { return left * integer(right); }
-    inline bool operator * (const integer& left, std::int8_t  right) { return left * integer(right); }
+    inline integer operator * (const integer& left, std::int64_t right) { return left * integer(right); }
+    inline integer operator * (const integer& left, std::int32_t right) { return left * integer(right); }
+    inline integer operator * (const integer& left, std::int16_t right) { return left * integer(right); }
+    inline integer operator * (const integer& left, std::int8_t  right) { return left * integer(right); }
 
-    inline bool operator * (const integer& left, std::uint64_t right) { return left * integer(right); }
-    inline bool operator * (const integer& left, std::uint32_t right) { return left * integer(right); }
-    inline bool operator * (const integer& left, std::uint16_t right) { return left * integer(right); }
-    inline bool operator * (const integer& left, std::uint8_t  right) { return left * integer(right); }
+    inline integer operator * (const integer& left, std::uint64_t right) { return left * integer(right); }
+    inline integer operator * (const integer& left, std::uint32_t right) { return left * integer(right); }
+    inline integer operator * (const integer& left, std::uint16_t right) { return left * integer(right); }
+    inline integer operator * (const integer& left, std::uint8_t  right) { return left * integer(right); }
 
-    inline bool operator * (std::int64_t left, const integer& right) { return integer(left) * right; }
-    inline bool operator * (std::int32_t left, const integer& right) { return integer(left) * right; }
-    inline bool operator * (std::int16_t left, const integer& right) { return integer(left) * right; }
-    inline bool operator * (std::int8_t  left, const integer& right) { return integer(left) * right; }
+    inline integer operator * (std::int64_t left, const integer& right) { return integer(left) * right; }
+    inline integer operator * (std::int32_t left, const integer& right) { return integer(left) * right; }
+    inline integer operator * (std::int16_t left, const integer& right) { return integer(left) * right; }
+    inline integer operator * (std::int8_t  left, const integer& right) { return integer(left) * right; }
 
-    inline bool operator * (std::uint64_t left, const integer& right) { return integer(left) * right; }
-    inline bool operator * (std::uint32_t left, const integer& right) { return integer(left) * right; }
-    inline bool operator * (std::uint16_t left, const integer& right) { return integer(left) * right; }
-    inline bool operator * (std::uint8_t  left, const integer& right) { return integer(left) * right; }
+    inline integer operator * (std::uint64_t left, const integer& right) { return integer(left) * right; }
+    inline integer operator * (std::uint32_t left, const integer& right) { return integer(left) * right; }
+    inline integer operator * (std::uint16_t left, const integer& right) { return integer(left) * right; }
+    inline integer operator * (std::uint8_t  left, const integer& right) { return integer(left) * right; }
 
-    inline bool operator / (const integer& left, std::int64_t right) { return left / integer(right); }
-    inline bool operator / (const integer& left, std::int32_t right) { return left / integer(right); }
-    inline bool operator / (const integer& left, std::int16_t right) { return left / integer(right); }
-    inline bool operator / (const integer& left, std::int8_t  right) { return left / integer(right); }
+    inline integer operator / (const integer& left, std::int64_t right) { return left / integer(right); }
+    inline integer operator / (const integer& left, std::int32_t right) { return left / integer(right); }
+    inline integer operator / (const integer& left, std::int16_t right) { return left / integer(right); }
+    inline integer operator / (const integer& left, std::int8_t  right) { return left / integer(right); }
 
-    inline bool operator / (const integer& left, std::uint64_t right) { return left / integer(right); }
-    inline bool operator / (const integer& left, std::uint32_t right) { return left / integer(right); }
-    inline bool operator / (const integer& left, std::uint16_t right) { return left / integer(right); }
-    inline bool operator / (const integer& left, std::uint8_t  right) { return left / integer(right); }
+    inline integer operator / (const integer& left, std::uint64_t right) { return left / integer(right); }
+    inline integer operator / (const integer& left, std::uint32_t right) { return left / integer(right); }
+    inline integer operator / (const integer& left, std::uint16_t right) { return left / integer(right); }
+    inline integer operator / (const integer& left, std::uint8_t  right) { return left / integer(right); }
 
-    inline bool operator / (std::int64_t left, const integer& right) { return integer(left) / right; }
-    inline bool operator / (std::int32_t left, const integer& right) { return integer(left) / right; }
-    inline bool operator / (std::int16_t left, const integer& right) { return integer(left) / right; }
-    inline bool operator / (std::int8_t  left, const integer& right) { return integer(left) / right; }
+    inline integer operator / (std::int64_t left, const integer& right) { return integer(left) / right; }
+    inline integer operator / (std::int32_t left, const integer& right) { return integer(left) / right; }
+    inline integer operator / (std::int16_t left, const integer& right) { return integer(left) / right; }
+    inline integer operator / (std::int8_t  left, const integer& right) { return integer(left) / right; }
 
-    inline bool operator / (std::uint64_t left, const integer& right) { return integer(left) / right; }
-    inline bool operator / (std::uint32_t left, const integer& right) { return integer(left) / right; }
-    inline bool operator / (std::uint16_t left, const integer& right) { return integer(left) / right; }
-    inline bool operator / (std::uint8_t  left, const integer& right) { return integer(left) / right; }
+    inline integer operator / (std::uint64_t left, const integer& right) { return integer(left) / right; }
+    inline integer operator / (std::uint32_t left, const integer& right) { return integer(left) / right; }
+    inline integer operator / (std::uint16_t left, const integer& right) { return integer(left) / right; }
+    inline integer operator / (std::uint8_t  left, const integer& right) { return integer(left) / right; }
 
-    inline bool operator & (const integer& left, std::int64_t right) { return left & integer(right); }
-    inline bool operator & (const integer& left, std::int32_t right) { return left & integer(right); }
-    inline bool operator & (const integer& left, std::int16_t right) { return left & integer(right); }
-    inline bool operator & (const integer& left, std::int8_t  right) { return left & integer(right); }
+    inline integer operator & (const integer& left, std::int64_t right) { return left & integer(right); }
+    inline integer operator & (const integer& left, std::int32_t right) { return left & integer(right); }
+    inline integer operator & (const integer& left, std::int16_t right) { return left & integer(right); }
+    inline integer operator & (const integer& left, std::int8_t  right) { return left & integer(right); }
 
-    inline bool operator & (const integer& left, std::uint64_t right) { return left & integer(right); }
-    inline bool operator & (const integer& left, std::uint32_t right) { return left & integer(right); }
-    inline bool operator & (const integer& left, std::uint16_t right) { return left & integer(right); }
-    inline bool operator & (const integer& left, std::uint8_t  right) { return left & integer(right); }
+    inline integer operator & (const integer& left, std::uint64_t right) { return left & integer(right); }
+    inline integer operator & (const integer& left, std::uint32_t right) { return left & integer(right); }
+    inline integer operator & (const integer& left, std::uint16_t right) { return left & integer(right); }
+    inline integer operator & (const integer& left, std::uint8_t  right) { return left & integer(right); }
 
-    inline bool operator & (std::int64_t left, const integer& right) { return integer(left) & right; }
-    inline bool operator & (std::int32_t left, const integer& right) { return integer(left) & right; }
-    inline bool operator & (std::int16_t left, const integer& right) { return integer(left) & right; }
-    inline bool operator & (std::int8_t  left, const integer& right) { return integer(left) & right; }
+    inline integer operator & (std::int64_t left, const integer& right) { return integer(left) & right; }
+    inline integer operator & (std::int32_t left, const integer& right) { return integer(left) & right; }
+    inline integer operator & (std::int16_t left, const integer& right) { return integer(left) & right; }
+    inline integer operator & (std::int8_t  left, const integer& right) { return integer(left) & right; }
 
-    inline bool operator & (std::uint64_t left, const integer& right) { return integer(left) & right; }
-    inline bool operator & (std::uint32_t left, const integer& right) { return integer(left) & right; }
-    inline bool operator & (std::uint16_t left, const integer& right) { return integer(left) & right; }
-    inline bool operator & (std::uint8_t  left, const integer& right) { return integer(left) & right; }
+    inline integer operator & (std::uint64_t left, const integer& right) { return integer(left) & right; }
+    inline integer operator & (std::uint32_t left, const integer& right) { return integer(left) & right; }
+    inline integer operator & (std::uint16_t left, const integer& right) { return integer(left) & right; }
+    inline integer operator & (std::uint8_t  left, const integer& right) { return integer(left) & right; }
 
-    inline bool operator | (const integer& left, std::int64_t right) { return left | integer(right); }
-    inline bool operator | (const integer& left, std::int32_t right) { return left | integer(right); }
-    inline bool operator | (const integer& left, std::int16_t right) { return left | integer(right); }
-    inline bool operator | (const integer& left, std::int8_t  right) { return left | integer(right); }
+    inline integer operator | (const integer& left, std::int64_t right) { return left | integer(right); }
+    inline integer operator | (const integer& left, std::int32_t right) { return left | integer(right); }
+    inline integer operator | (const integer& left, std::int16_t right) { return left | integer(right); }
+    inline integer operator | (const integer& left, std::int8_t  right) { return left | integer(right); }
 
-    inline bool operator | (const integer& left, std::uint64_t right) { return left | integer(right); }
-    inline bool operator | (const integer& left, std::uint32_t right) { return left | integer(right); }
-    inline bool operator | (const integer& left, std::uint16_t right) { return left | integer(right); }
-    inline bool operator | (const integer& left, std::uint8_t  right) { return left | integer(right); }
+    inline integer operator | (const integer& left, std::uint64_t right) { return left | integer(right); }
+    inline integer operator | (const integer& left, std::uint32_t right) { return left | integer(right); }
+    inline integer operator | (const integer& left, std::uint16_t right) { return left | integer(right); }
+    inline integer operator | (const integer& left, std::uint8_t  right) { return left | integer(right); }
 
-    inline bool operator | (std::int64_t left, const integer& right) { return integer(left) | right; }
-    inline bool operator | (std::int32_t left, const integer& right) { return integer(left) | right; }
-    inline bool operator | (std::int16_t left, const integer& right) { return integer(left) | right; }
-    inline bool operator | (std::int8_t  left, const integer& right) { return integer(left) | right; }
+    inline integer operator | (std::int64_t left, const integer& right) { return integer(left) | right; }
+    inline integer operator | (std::int32_t left, const integer& right) { return integer(left) | right; }
+    inline integer operator | (std::int16_t left, const integer& right) { return integer(left) | right; }
+    inline integer operator | (std::int8_t  left, const integer& right) { return integer(left) | right; }
 
-    inline bool operator | (std::uint64_t left, const integer& right) { return integer(left) | right; }
-    inline bool operator | (std::uint32_t left, const integer& right) { return integer(left) | right; }
-    inline bool operator | (std::uint16_t left, const integer& right) { return integer(left) | right; }
-    inline bool operator | (std::uint8_t  left, const integer& right) { return integer(left) | right; }
+    inline integer operator | (std::uint64_t left, const integer& right) { return integer(left) | right; }
+    inline integer operator | (std::uint32_t left, const integer& right) { return integer(left) | right; }
+    inline integer operator | (std::uint16_t left, const integer& right) { return integer(left) | right; }
+    inline integer operator | (std::uint8_t  left, const integer& right) { return integer(left) | right; }
 
-    inline bool operator ^ (const integer& left, std::int64_t right) { return left ^ integer(right); }
-    inline bool operator ^ (const integer& left, std::int32_t right) { return left ^ integer(right); }
-    inline bool operator ^ (const integer& left, std::int16_t right) { return left ^ integer(right); }
-    inline bool operator ^ (const integer& left, std::int8_t  right) { return left ^ integer(right); }
+    inline integer operator ^ (const integer& left, std::int64_t right) { return left ^ integer(right); }
+    inline integer operator ^ (const integer& left, std::int32_t right) { return left ^ integer(right); }
+    inline integer operator ^ (const integer& left, std::int16_t right) { return left ^ integer(right); }
+    inline integer operator ^ (const integer& left, std::int8_t  right) { return left ^ integer(right); }
 
-    inline bool operator ^ (const integer& left, std::uint64_t right) { return left ^ integer(right); }
-    inline bool operator ^ (const integer& left, std::uint32_t right) { return left ^ integer(right); }
-    inline bool operator ^ (const integer& left, std::uint16_t right) { return left ^ integer(right); }
-    inline bool operator ^ (const integer& left, std::uint8_t  right) { return left ^ integer(right); }
+    inline integer operator ^ (const integer& left, std::uint64_t right) { return left ^ integer(right); }
+    inline integer operator ^ (const integer& left, std::uint32_t right) { return left ^ integer(right); }
+    inline integer operator ^ (const integer& left, std::uint16_t right) { return left ^ integer(right); }
+    inline integer operator ^ (const integer& left, std::uint8_t  right) { return left ^ integer(right); }
 
-    inline bool operator ^ (std::int64_t left, const integer& right) { return integer(left) ^ right; }
-    inline bool operator ^ (std::int32_t left, const integer& right) { return integer(left) ^ right; }
-    inline bool operator ^ (std::int16_t left, const integer& right) { return integer(left) ^ right; }
-    inline bool operator ^ (std::int8_t  left, const integer& right) { return integer(left) ^ right; }
+    inline integer operator ^ (std::int64_t left, const integer& right) { return integer(left) ^ right; }
+    inline integer operator ^ (std::int32_t left, const integer& right) { return integer(left) ^ right; }
+    inline integer operator ^ (std::int16_t left, const integer& right) { return integer(left) ^ right; }
+    inline integer operator ^ (std::int8_t  left, const integer& right) { return integer(left) ^ right; }
 
-    inline bool operator ^ (std::uint64_t left, const integer& right) { return integer(left) ^ right; }
-    inline bool operator ^ (std::uint32_t left, const integer& right) { return integer(left) ^ right; }
-    inline bool operator ^ (std::uint16_t left, const integer& right) { return integer(left) ^ right; }
-    inline bool operator ^ (std::uint8_t  left, const integer& right) { return integer(left) ^ right; }
+    inline integer operator ^ (std::uint64_t left, const integer& right) { return integer(left) ^ right; }
+    inline integer operator ^ (std::uint32_t left, const integer& right) { return integer(left) ^ right; }
+    inline integer operator ^ (std::uint16_t left, const integer& right) { return integer(left) ^ right; }
+    inline integer operator ^ (std::uint8_t  left, const integer& right) { return integer(left) ^ right; }
 
     inline integer& operator += (integer& left, std::int64_t right) { return left += integer(right); }
     inline integer& operator += (integer& left, std::int32_t right) { return left += integer(right); }
