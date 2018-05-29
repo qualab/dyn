@@ -702,115 +702,7 @@ namespace dyn
     {
         constexpr std::uint64_t max_signed_uint64(std::numeric_limits<std::int64_t>::max());
         constexpr std::uint64_t min_signed_uint64(std::numeric_limits<std::int64_t>::min());
-    }
 
-    void integer::data::add(const data& another)
-    {
-        static const char* const operation_name = "addition";
-
-        if (m_unsigned && another.m_unsigned)
-        {
-            std::uint64_t result = m_unsigned + another.m_unsigned;
-            if (result < m_unsigned)
-                throw arithmetic_overflow_exception(operation_name, *this, another);
-            m_unsigned = result;
-        }
-        else if (m_signed && another.m_signed)
-        {
-            if (m_signed >= 0 && another.m_signed >= 0)
-            {
-                std::uint64_t result = static_cast<std::uint64_t>(m_signed) + static_cast<std::uint64_t>(another.m_signed);
-                if (result <= max_signed_uint64)
-                {
-                    m_signed = static_cast<std::int64_t>(result);
-                    m_unsigned = 0;
-                }
-                else
-                {
-                    m_unsigned = result;
-                    m_signed = 0;
-                }
-            }
-            else if (m_signed < 0 && another.m_signed < 0)
-            {
-                std::int64_t result = m_signed + another.m_signed;
-                if (result >= 0)
-                    throw arithmetic_overflow_exception(operation_name, *this, another);
-                m_signed = result;
-            }
-            else
-            {
-                m_signed += another.m_signed;
-            }
-        }
-        else
-        {
-            std::uint64_t greater;
-            std::int64_t lesser;
-            if (m_unsigned)
-            {
-                greater = m_unsigned;
-                lesser = another.m_signed;
-            }
-            else
-            {
-                greater = another.m_unsigned;
-                lesser = m_signed;
-            }
-            if (lesser >= 0)
-            {
-                std::uint64_t result = greater + static_cast<std::uint64_t>(lesser);
-                if (result < greater)
-                    throw arithmetic_overflow_exception(operation_name, *this, another);
-                m_unsigned = result;
-            }
-            else
-            {
-                std::uint64_t result = greater - static_cast<std::uint64_t>(-lesser);
-                if (result <= max_signed_uint64)
-                {
-                    m_signed = static_cast<std::int64_t>(result);
-                    m_unsigned = 0;
-                }
-                else
-                {
-                    m_unsigned = result;
-                    m_signed = 0;
-                }
-            }
-        }
-    }
-
-    void integer::data::sub(const data& another)
-    {
-        if (m_unsigned && another.m_unsigned)
-        {
-            if (m_unsigned >= another.m_unsigned)
-            {
-                m_signed = static_cast<std::int64_t>(m_unsigned - another.m_unsigned);
-            }
-            else
-            {
-                m_signed = -static_cast<std::int64_t>(another.m_unsigned - m_unsigned);
-            }
-        }
-        else if (!another.m_unsigned)
-        {
-            integer::data negated = another;
-            negated.unary_minus();
-            add(negated);
-        }
-        else
-        {
-            integer::data negated = another;
-            negated.sub(*this);
-            negated.unary_minus();
-            *this = negated;
-        }
-    }
-
-    namespace
-    {
         std::uint64_t safe_abs(std::int64_t value)
         {
             if (value >= 0 || value == std::numeric_limits<std::int64_t>::min())
@@ -862,17 +754,115 @@ namespace dyn
             return !unsigned_value && signed_value < 0;
         }
 
-        bool sign_and_sides(std::uint64_t& left,           std::uint64_t& right,
-                            std::uint64_t  left_unsigned,  std::uint64_t  right_unsigned,
-                            std::int64_t   left_signed,    std::int64_t   right_signed)
+        bool sign_and_sides(std::uint64_t& left, std::uint64_t& right,
+            std::uint64_t  left_unsigned, std::uint64_t  right_unsigned,
+            std::int64_t   left_signed, std::int64_t   right_signed)
         {
-            bool left_negative  = is_negative(left_unsigned,  left_signed);
+            bool left_negative = is_negative(left_unsigned, left_signed);
             bool right_negative = is_negative(right_unsigned, right_signed);
 
-            left  = left_unsigned  ? left_unsigned  : safe_abs(left_signed);
+            left = left_unsigned ? left_unsigned : safe_abs(left_signed);
             right = right_unsigned ? right_unsigned : safe_abs(right_signed);
 
             return left_negative ^ right_negative;
+        }
+    }
+
+    void integer::data::add(const data& another)
+    {
+        static const char* const operation_name = "addition";
+
+        if (m_unsigned && another.m_unsigned)
+        {
+            std::uint64_t result = m_unsigned + another.m_unsigned;
+            if (result < m_unsigned)
+                throw arithmetic_overflow_exception(operation_name, *this, another);
+            m_unsigned = result;
+        }
+        else if (!m_unsigned && !another.m_unsigned)
+        {
+            if (m_signed >= 0 && another.m_signed >= 0)
+            {
+                std::uint64_t result = static_cast<std::uint64_t>(m_signed) + static_cast<std::uint64_t>(another.m_signed);
+                if (result <= max_signed_uint64)
+                {
+                    m_signed = static_cast<std::int64_t>(result);
+                    m_unsigned = 0;
+                }
+                else
+                {
+                    m_unsigned = result;
+                    m_signed = 0;
+                }
+            }
+            else if (m_signed < 0 && another.m_signed < 0)
+            {
+                std::int64_t result = m_signed + another.m_signed;
+                if (result >= 0)
+                    throw arithmetic_overflow_exception(operation_name, *this, another);
+                m_signed = result;
+            }
+            else
+            {
+                m_signed += another.m_signed;
+            }
+        }
+        else
+        {
+            std::uint64_t greater;
+            std::int64_t lesser;
+            if (m_unsigned)
+            {
+                greater = m_unsigned;
+                lesser = another.m_signed;
+            }
+            else
+            {
+                greater = another.m_unsigned;
+                lesser = m_signed;
+            }
+            if (lesser >= 0)
+            {
+                std::uint64_t result = greater + static_cast<std::uint64_t>(lesser);
+                if (result < greater)
+                    throw arithmetic_overflow_exception(operation_name, *this, another);
+                m_unsigned = result;
+            }
+            else
+            {
+                std::uint64_t lesser_unsigned = 0;
+                safe_sign(false, lesser_unsigned, lesser);
+                m_unsigned = greater - lesser_unsigned;
+                safe_sign(false, m_unsigned, m_signed);
+            }
+        }
+    }
+
+    void integer::data::sub(const data& another)
+    {
+        if (m_unsigned && another.m_unsigned)
+        {
+            if (m_unsigned >= another.m_unsigned)
+            {
+                m_signed = static_cast<std::int64_t>(m_unsigned - another.m_unsigned);
+            }
+            else
+            {
+                m_signed = -static_cast<std::int64_t>(another.m_unsigned - m_unsigned);
+            }
+        }
+        else if (!another.m_unsigned)
+        {
+            integer::data negated = another;
+            negated.unary_minus();
+            add(negated);
+        }
+        else
+        {
+            integer::data negated = another;
+            negated.sub(*this);
+            negated.unary_minus();
+            *this = negated;
         }
     }
 

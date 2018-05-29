@@ -24,6 +24,12 @@ namespace dyn
 
     TEST_SUITE(test_integer_addition)
     {
+        integer o = 0;
+        integer l = 1;
+        TEST_CHECK(o + l) == 1;
+        TEST_CHECK(l + o) == 1;
+        TEST_CHECK(l + l) == 2;
+        TEST_CHECK(o + o) == 0;
         integer x = 123456789012345678uLL;
         integer y = -23456789012345678LL;
         TEST_CHECK(x + y) == 100000000000000000uLL;
