@@ -107,6 +107,7 @@ namespace dyn
         integer& operator /= (const integer& another);
         integer& operator %= (const integer& another);
 
+        integer operator - () const;
         integer operator ~ () const;
 
         integer operator & (const integer& another) const;

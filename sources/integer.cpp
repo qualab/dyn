@@ -333,9 +333,16 @@ namespace dyn
         return *this;
     }
 
+    integer integer::operator - () const
+    {
+        integer result = *this;
+        result.m_data->unary_minus();
+        return result;
+    }
+
     integer integer::operator ~ () const
     {
-        integer result;
+        integer result = *this;
         result.m_data->binary_inverse();
         return result;
     }
@@ -830,9 +837,7 @@ namespace dyn
             }
             else
             {
-                std::uint64_t lesser_unsigned = 0;
-                safe_sign(false, lesser_unsigned, lesser);
-                m_unsigned = greater - lesser_unsigned;
+                m_unsigned = greater - safe_abs(lesser);
                 safe_sign(false, m_unsigned, m_signed);
             }
         }
@@ -850,6 +855,7 @@ namespace dyn
             {
                 m_signed = -static_cast<std::int64_t>(another.m_unsigned - m_unsigned);
             }
+            m_unsigned = 0;
         }
         else if (!another.m_unsigned)
         {

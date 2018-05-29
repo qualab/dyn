@@ -44,6 +44,12 @@ namespace dyn
         TEST_CHECK(I64min + l) == 1 + I64min;
         TEST_CHECK(l + I64min) == I64min + 1;
         TEST_CHECK(-1 + I64max) == I64max - l;
+        integer big = 10000000000000000000uLL;
+        integer neg = -1000000000000000000LL;
+        TEST_CHECK(big + neg) == 9000000000000000000LL;
+        TEST_CHECK(neg + big) == 9000000000000000000LL;
+        TEST_CHECK([big]() { big + big; }).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK(neg + neg) == -2000000000000000000LL;
     }
 
     TEST_SUITE(test_integer_subtraction)
@@ -59,6 +65,36 @@ namespace dyn
         TEST_CHECK([I64min]() { I64min - 1; }).expect_exception<integer::arithmetic_overflow_exception>();
         TEST_CHECK(I64max - l) == I64max - 1;
         TEST_CHECK(1 - I64max) == l - I64max;
+        integer big = 10000000000000000000uLL;
+        integer neg = -1000000000000000000LL;
+        TEST_CHECK(big - neg) == 11000000000000000000uLL;
+        TEST_CHECK([=]() { neg - big; }).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK(big - big) == 0;
+        TEST_CHECK(neg - neg) == 0;
+        integer bigP1 = big + 1;
+        integer negM1 = neg - 1;
+        TEST_CHECK(big - bigP1) == -1;
+        TEST_CHECK(neg - negM1) == 1;
+        TEST_CHECK(bigP1 - big) == 1;
+        TEST_CHECK(negM1 - neg) == -1;
+    }
+
+    TEST_SUITE(test_integer_negation)
+    {
+        integer o = 0;
+        integer l = 1;
+        integer m = -1;
+        TEST_CHECK(-o) == 0;
+        TEST_CHECK(-l) == -1;
+        TEST_CHECK(-m) == 1;
+        integer I64min = std::numeric_limits<std::int64_t>::min();
+        integer I64max = std::numeric_limits<std::int64_t>::max();
+        TEST_CHECK(-I64min) == static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::min());
+        TEST_CHECK(-I64max) == -std::numeric_limits<std::int64_t>::max();
+        integer big = 10000000000000000000uLL;
+        integer neg = -1000000000000000000LL;
+        TEST_CHECK([big]() { -big; }).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK(-neg) == 1000000000000000000LL;
     }
 
     TEST_SUITE(test_integer_float)
