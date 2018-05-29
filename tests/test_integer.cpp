@@ -9,17 +9,41 @@ namespace dyn
     TEST_SUITE(test_integer_default)
     {
         integer n;
-        TEST_CHECK(n).is_false();
-        integer z;
         TEST_CHECK(n) == 0;
+        TEST_CHECK(n).is_false();
+        TEST_CHECK(!n).is_true();
+        integer z;
+        TEST_CHECK(z) == 0;
+        TEST_CHECK(n) == 0;
+        TEST_CHECK(z) == n;
     }
 
     TEST_SUITE(test_integer_initialization)
     {
-        integer x = 123;
-        TEST_CHECK(x) == 123;
-        integer c = 1234567890uLL;
-        TEST_CHECK(c) == 1234567890uLL;
+        integer i64 = 1234567890123456789LL;
+        TEST_CHECK(i64) == 1234567890123456789LL;
+        integer s64 = -1234567890123456789LL;
+        TEST_CHECK(s64) == -1234567890123456789LL;
+        integer u64 = 12345678901234567890uLL;
+        TEST_CHECK(u64) == 12345678901234567890uLL;
+        integer i32 = 1234567890;
+        TEST_CHECK(i32) == 1234567890;
+        integer s32 = -1234567890;
+        TEST_CHECK(s32) == -1234567890;
+        integer u32 = 12345678901u;
+        TEST_CHECK(u32) == 12345678901u;
+        integer i16 = std::int16_t(12345);
+        TEST_CHECK(i16) == std::int16_t(12345);
+        integer s16 = std::int16_t(-12345);
+        TEST_CHECK(s16) == std::int16_t(-12345);
+        integer u16 = std::uint16_t(65432);
+        TEST_CHECK(u16) == std::uint16_t(65432);
+        integer i8 = std::int8_t(123);
+        TEST_CHECK(i8) == std::int8_t(123);
+        integer s8 = std::int8_t(-123);
+        TEST_CHECK(s8) == std::int8_t(-123);
+        integer u8 = std::uint8_t(234);
+        TEST_CHECK(u8) == std::uint16_t(234);
     }
 
     TEST_SUITE(test_integer_addition)
