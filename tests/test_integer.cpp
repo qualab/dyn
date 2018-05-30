@@ -8,14 +8,14 @@ namespace dyn
 {
     TEST_SUITE(test_integer_default)
     {
-        integer n;
-        TEST_CHECK(n) == 0;
-        TEST_CHECK(n).is_false();
-        TEST_CHECK(!n).is_true();
-        integer z;
-        TEST_CHECK(z) == 0;
-        TEST_CHECK(n) == 0;
-        TEST_CHECK(z) == n;
+        integer none;
+        TEST_CHECK(none) == 0;
+        TEST_CHECK(none).is_false();
+        TEST_CHECK(!none).is_true();
+        integer zero;
+        TEST_CHECK(zero) == 0;
+        TEST_CHECK(none) == 0;
+        TEST_CHECK(zero) == none;
     }
 
     TEST_SUITE(test_integer_initialization)
@@ -44,6 +44,35 @@ namespace dyn
         TEST_CHECK(s8) == std::int8_t(-123);
         integer u8 = std::uint8_t(234);
         TEST_CHECK(u8) == std::uint16_t(234);
+    }
+
+    TEST_SUITE(test_integer_assignment)
+    {
+        integer number;
+        number = 1234567890123456789LL;
+        TEST_CHECK(number) == 1234567890123456789LL;
+        number = -1234567890123456789LL;
+        TEST_CHECK(number) == -1234567890123456789LL;
+        number = 12345678901234567890uLL;
+        TEST_CHECK(number) == 12345678901234567890uLL;
+        number = 1234567890;
+        TEST_CHECK(number) == 1234567890;
+        number = -1234567890;
+        TEST_CHECK(number) == -1234567890;
+        number = 12345678901u;
+        TEST_CHECK(number) == 12345678901u;
+        number = std::int16_t(12345);
+        TEST_CHECK(number) == std::int16_t(12345);
+        number = std::int16_t(-12345);
+        TEST_CHECK(number) == std::int16_t(-12345);
+        number = std::uint16_t(65432);
+        TEST_CHECK(number) == std::uint16_t(65432);
+        number = std::int8_t(123);
+        TEST_CHECK(number) == std::int8_t(123);
+        number = std::int8_t(-123);
+        TEST_CHECK(number) == std::int8_t(-123);
+        number = std::uint8_t(234);
+        TEST_CHECK(number) == std::uint16_t(234);
     }
 
     TEST_SUITE(test_integer_addition)
@@ -119,6 +148,20 @@ namespace dyn
         integer neg = -1000000000000000000LL;
         TEST_CHECK([big]() { -big; }).expect_exception<integer::arithmetic_overflow_exception>();
         TEST_CHECK(-neg) == 1000000000000000000LL;
+    }
+
+    TEST_SUITE(test_integer_multiplication)
+    {
+        integer o = 0, l = 1, m = -1;
+        TEST_CHECK(o * l) == 0;
+        TEST_CHECK(l * o) == 0;
+        TEST_CHECK(o * m) == 0;
+        TEST_CHECK(m * o) == 0;
+        TEST_CHECK(o * o) == 0;
+        TEST_CHECK(l * l) == 1;
+        TEST_CHECK(m * l) == -1;
+        TEST_CHECK(l * m) == -1;
+        TEST_CHECK(m * m) == 1;
     }
 
     TEST_SUITE(test_integer_float)

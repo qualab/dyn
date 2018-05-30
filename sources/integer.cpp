@@ -881,6 +881,7 @@ namespace dyn
                                        m_unsigned, another.m_unsigned,
                                        m_signed,   another.m_signed);
         m_unsigned = left * right;
+        m_signed = 0;
 
         if (m_unsigned < left && m_unsigned < right
                 || !safe_sign(negative, m_unsigned, m_signed))
@@ -901,6 +902,7 @@ namespace dyn
                                        m_unsigned, another.m_unsigned,
                                        m_signed,   another.m_signed);
         m_unsigned = left / right;
+        m_signed = 0;
 
         if (!safe_sign(negative, m_unsigned, m_signed))
             throw arithmetic_overflow_exception(operation_name, *this, another);
@@ -918,6 +920,7 @@ namespace dyn
                                        m_unsigned, another.m_unsigned,
                                        m_signed,   another.m_signed);
         m_unsigned = left % right;
+        m_signed = 0;
 
         if (!safe_sign(negative, m_unsigned, m_signed))
             throw arithmetic_overflow_exception(operation_name, *this, another);
