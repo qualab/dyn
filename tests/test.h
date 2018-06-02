@@ -138,6 +138,7 @@ class test_suite_##suite_name : public test::suite \
 public: \
     test_suite_##suite_name() \
         : m_name(#suite_name), m_file(__FILE__), m_line(__LINE__) { } \
+	virtual ~test_suite_##suite_name() { } \
     virtual void run() override; \
     virtual const std::string& name() const override { return m_name; } \
     virtual const std::string& file() const override { return m_file; } \
@@ -194,7 +195,8 @@ void test_suite_##suite_name::run()
 
         static const std::string scope_name;
 
-        check(const check& temporary);
+        check(const check&);
+		check& operator = (const check&);
     };
 
     template <typename fail_type, typename argument_type>

@@ -702,7 +702,7 @@ namespace dyn
         else if (!m_unsigned && !another.m_unsigned)
             return m_signed < another.m_signed;
         else
-            return another.m_unsigned;
+            return another.m_unsigned != 0;
     }
 
     bool integer::data::greater_than(const data& another) const
@@ -712,7 +712,7 @@ namespace dyn
         else if (!m_unsigned && !another.m_unsigned)
             return m_signed > another.m_signed;
         else
-            return m_unsigned;
+            return m_unsigned != 0;
     }
 
     namespace
