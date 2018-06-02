@@ -160,6 +160,9 @@ namespace dyn
 
         virtual const char* name() const override;
 
+        virtual bool is_zero() const;
+        virtual bool is_unit() const;
+
         virtual bool equals_to(const data& another) const;
         virtual bool lesser_than(const data& another) const;
         virtual bool greater_than(const data& another) const;

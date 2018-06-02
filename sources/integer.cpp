@@ -675,6 +675,16 @@ namespace dyn
         return "integer";
     }
 
+    bool integer::data::is_zero() const
+    {
+        return !m_unsigned && !m_signed;
+    }
+
+    bool integer::data::is_unit() const
+    {
+        return !m_unsigned && m_signed == 1;
+    }
+
     bool integer::data::equals_to(const data& another) const
     {
         if (m_unsigned && another.m_unsigned)
@@ -761,9 +771,9 @@ namespace dyn
             return !unsigned_value && signed_value < 0;
         }
 
-        bool sign_and_sides(std::uint64_t& left, std::uint64_t& right,
-            std::uint64_t  left_unsigned, std::uint64_t  right_unsigned,
-            std::int64_t   left_signed, std::int64_t   right_signed)
+        bool sign_and_sides(std::uint64_t& left,          std::uint64_t& right,
+                            std::uint64_t  left_unsigned, std::uint64_t  right_unsigned,
+                            std::int64_t   left_signed,   std::int64_t   right_signed)
         {
             bool left_negative = is_negative(left_unsigned, left_signed);
             bool right_negative = is_negative(right_unsigned, right_signed);
@@ -883,10 +893,10 @@ namespace dyn
     {
         static const char* const operation_name = "multiplication";
 
-        if (!as_bool())
+        if (is_zero() || another.is_unit())
             return;
 
-        if (!another.as_bool())
+        if (another.is_zero() || is_unit())
         {
             *this = another;
             return;
@@ -897,7 +907,7 @@ namespace dyn
                                        m_unsigned, another.m_unsigned,
                                        m_signed,   another.m_signed);
 
-        int left_bit = top_bit(left);
+        int left_bit  = top_bit(left);
         int right_bit = top_bit(right);
         if (left_bit + right_bit > 63)
             throw arithmetic_overflow_exception(operation_name, *this, another);
@@ -1013,7 +1023,7 @@ namespace dyn
 
     bool integer::data::as_bool() const
     {
-        return m_signed || m_unsigned;
+        return !is_zero();
     }
 
     bool integer::data::of_int64() const

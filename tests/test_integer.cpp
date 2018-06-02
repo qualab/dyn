@@ -183,7 +183,8 @@ namespace dyn
 		integer neg = -1000000000000000000LL;
 		TEST_CHECK([=]() { big * neg; }).expect_exception<integer::arithmetic_overflow_exception>();
 		TEST_CHECK(big * 1) == 10000000000000000000uLL;
-		TEST_CHECK([big]() { big * 10; }).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK(big * 0) == 0;
+        TEST_CHECK([big]() { big * 10; }).expect_exception<integer::arithmetic_overflow_exception>();
 		TEST_CHECK([big]() { big * (-1); }).expect_exception<integer::arithmetic_overflow_exception>();
 		TEST_CHECK(1 * neg) == -1000000000000000000LL;
 		TEST_CHECK([neg]() { 10 * neg; }).expect_exception<integer::arithmetic_overflow_exception>();
