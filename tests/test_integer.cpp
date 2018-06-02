@@ -162,7 +162,33 @@ namespace dyn
         TEST_CHECK(m * l) == -1;
         TEST_CHECK(l * m) == -1;
         TEST_CHECK(m * m) == 1;
-    }
+		integer I64min = std::numeric_limits<std::int64_t>::min();
+		integer I64max = std::numeric_limits<std::int64_t>::max();
+		TEST_CHECK(I64min * 1) == std::numeric_limits<std::int64_t>::min();
+		TEST_CHECK(-1 * I64min) == static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::min());
+		TEST_CHECK(1 * I64max) == std::numeric_limits<std::int64_t>::max();
+		TEST_CHECK(I64max * (-1)) == -std::numeric_limits<std::int64_t>::max();
+		integer I32min = std::numeric_limits<std::int32_t>::min();
+		integer I32max = std::numeric_limits<std::int32_t>::max();
+		TEST_CHECK(I32min * I32min) == 1uLL << 62;
+		TEST_CHECK(I32max * I32max) == (1uLL << 62) - (1uLL << 32) + 1;
+		TEST_CHECK(I32max * I32min) == -((1LL << 62) - (1LL << 31));
+		TEST_CHECK(I32min * I32max) == -((1LL << 62) - (1LL << 31));
+		integer U32max = std::numeric_limits<std::uint32_t>::max();
+		integer U32lim = 1uLL << 32;
+		TEST_CHECK(U32max * U32max) == (1uLL << 33) * ((1uLL << 31) - 1) + 1;
+		TEST_CHECK([U32lim]() { U32lim * U32lim; }).expect_exception<integer::arithmetic_overflow_exception>();
+		TEST_CHECK(U32max * U32lim) == (1uLL << 32) * ((1uLL << 32) - 1);
+		integer big = 10000000000000000000uLL;
+		integer neg = -1000000000000000000LL;
+		TEST_CHECK([=]() { big * neg; }).expect_exception<integer::arithmetic_overflow_exception>();
+		TEST_CHECK(big * 1) == 10000000000000000000uLL;
+		TEST_CHECK([big]() { big * 10; }).expect_exception<integer::arithmetic_overflow_exception>();
+		TEST_CHECK([big]() { big * (-1); }).expect_exception<integer::arithmetic_overflow_exception>();
+		TEST_CHECK(1 * neg) == -1000000000000000000LL;
+		TEST_CHECK([neg]() { 10 * neg; }).expect_exception<integer::arithmetic_overflow_exception>();
+		TEST_CHECK(-10 * neg) == 10000000000000000000uLL;
+	}
 
     TEST_SUITE(test_integer_float)
     {

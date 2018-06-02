@@ -544,7 +544,7 @@ void test_suite_##suite_name::run()
         {
             test::handle_fail<test::nonstandard_unhandled_exception<test::error>>();
         }
-        throw exception_expected<exception_type, fail_type>();
+		test::handle_fail<test::exception_expected<exception_type, fail_type>>();
     }
 
     template <typename fail_type, typename argument_type>

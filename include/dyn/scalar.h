@@ -78,9 +78,6 @@ namespace dyn
 
         class data;
 
-    protected:
-        virtual void reset() override;
-
     private:
         data* m_data;
     };
@@ -171,13 +168,6 @@ namespace dyn
     value_type& scalar<value_type>::value()
     {
         return m_data->value();
-    }
-
-    template <typename value_type>
-    void scalar<value_type>::reset()
-    {
-        m_data = nullptr;
-        object::reset();
     }
 
     template <typename value_type>

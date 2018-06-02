@@ -75,27 +75,15 @@ namespace dyn
         operator bool() const { return true; }
     };
 
-    struct least_bad
-    {
-        static const size_t size = biggest_good::size + 1;
-        char bytes[size];
-        operator bool() const { return true; }
-    };
-
     template<> object& object::operator = (const biggest_good&) { return *this; }
-    template<> object& object::operator = (const least_bad&) { return *this; }
 
     std::ostream& operator << (std::ostream& output, const biggest_good&) { return output; }
-    std::ostream& operator << (std::ostream& output, const least_bad&) { return output; }
 
     TEST_SUITE(test_scalar_biggest_data)
     {
         TEST_CHECK([]() {
             scalar<biggest_good> good;
         }).no_exception();
-        TEST_CHECK([]() {
-            scalar<least_bad> bad;
-        }).expect_exception<object::data_size_exception_of<scalar<least_bad>::data>>();
     }
 }
 

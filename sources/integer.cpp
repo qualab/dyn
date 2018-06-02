@@ -773,6 +773,13 @@ namespace dyn
 
             return left_negative ^ right_negative;
         }
+
+        int top_bit(std::uint64_t value)
+        {
+            int bit = 63;
+            for (std::uint64_t mask = 1uLL << 63; bit && !(value & mask); --bit, mask >>= 1);
+            return bit;
+        }
     }
 
     void integer::data::add(const data& another)
@@ -876,14 +883,29 @@ namespace dyn
     {
         static const char* const operation_name = "multiplication";
 
+        if (!as_bool())
+            return;
+
+        if (!another.as_bool())
+        {
+            *this = another;
+            return;
+        }
+
         std::uint64_t left, right;
         bool negative = sign_and_sides(left,       right,
                                        m_unsigned, another.m_unsigned,
                                        m_signed,   another.m_signed);
+
+        int left_bit = top_bit(left);
+        int right_bit = top_bit(right);
+        if (left_bit + right_bit > 63)
+            throw arithmetic_overflow_exception(operation_name, *this, another);
+
         m_unsigned = left * right;
         m_signed = 0;
 
-        if (m_unsigned < left && m_unsigned < right
+        if (m_unsigned < left || m_unsigned < right
                 || !safe_sign(negative, m_unsigned, m_signed))
         {
             throw arithmetic_overflow_exception(operation_name, *this, another);

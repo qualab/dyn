@@ -166,10 +166,10 @@ namespace dyn
     template <typename derived_data_type, typename... arg_list>
     derived_data_type* object::initialize(arg_list... arg)
     {
-        derived_data_type* result = nullptr;
+		static_assert(sizeof(derived_data_type) <= max_data_size,
+			"Size of derived data is too big to inplace it into internal object buffer.");
+		derived_data_type* result = nullptr;
         reset();
-        if (sizeof(derived_data_type) > max_data_size)
-            throw data_size_exception_of<derived_data_type>();
         m_data = result = new(m_buffer) derived_data_type(arg...);
         return result;
     }
