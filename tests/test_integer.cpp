@@ -103,6 +103,12 @@ namespace dyn
         TEST_CHECK(neg + big) == 9000000000000000000LL;
         TEST_CHECK_OPERATION(big + big).expect_exception<integer::arithmetic_overflow_exception>();
         TEST_CHECK(neg + neg) == -2000000000000000000LL;
+        TEST_CHECK(big + 1.0e+19f) == 2.0e+19f;
+        TEST_CHECK(neg + 1.1e+19) == 1.0e+19;
+        TEST_CHECK(0.5f + l) == 1.5f;
+        TEST_CHECK(0.1234567 + l) == 1.1234567;
+        TEST_CHECK(123.456 + o) == 123.456;
+        TEST_CHECK(o + 12.34f) == 12.34f;
     }
 
     TEST_SUITE(test_integer_subtraction)
@@ -130,6 +136,12 @@ namespace dyn
         TEST_CHECK(neg - negM1) == 1;
         TEST_CHECK(bigP1 - big) == 1;
         TEST_CHECK(negM1 - neg) == -1;
+        TEST_CHECK(big - 2.0e+19f) == -1.0e+19f;
+        TEST_CHECK(neg - 1.0e+18) == -2.0e+18;
+        TEST_CHECK(1.125f - l) == 0.125f;
+        TEST_CHECK(321.0 - l) == 320.0;
+        TEST_CHECK(123.456 - 0) == 123.456;
+        TEST_CHECK(0 - 12.34f) == -12.34f;
     }
 
     TEST_SUITE(test_integer_negation)
