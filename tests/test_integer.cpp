@@ -208,7 +208,15 @@ namespace dyn
 		TEST_CHECK(1 * neg) == -1000000000000000000LL;
 		TEST_CHECK_OPERATION(10 * neg).expect_exception<integer::arithmetic_overflow_exception>();
 		TEST_CHECK(-10 * neg) == 10000000000000000000uLL;
-	}
+        TEST_CHECK(10.0f * neg) == -1.0e+19f;
+        TEST_CHECK(big * 2.0) == 2.0e+19;
+        TEST_CHECK(neg * (-0.1)) == 1.0e+17;
+        TEST_CHECK(0.5f * big) == 0.5e+19f;
+        TEST_CHECK(l * 1.23f) == 1.23f;
+        TEST_CHECK(123.456 * m) == -123.456;
+        TEST_CHECK(o * 12.3) == 0.0;
+        TEST_CHECK(1.75f * o) == 0.0f;
+    }
 
     TEST_SUITE(test_integer_division)
     {
@@ -232,6 +240,17 @@ namespace dyn
         TEST_CHECK(I64min / 1) == std::numeric_limits<std::int64_t>::min();
         TEST_CHECK(I64max / 128) == (1LL << 56) - 1;
         TEST_CHECK(I64min / 32) == -(1LL << 58);
+        integer big = 10000000000000000000uLL;
+        integer neg = -1000000000000000000LL;
+        TEST_CHECK(big / neg) == -10;
+        TEST_CHECK(big / 1) == 10000000000000000000uLL;
+        TEST_CHECK(neg / 1) == -1000000000000000000LL;
+        TEST_CHECK(neg / (-1)) == 1000000000000000000LL;
+        TEST_CHECK_OPERATION(big / (-1)).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK_OPERATION(big / 0).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK_OPERATION(neg / 0).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK(big / 100.0f) == 1.0e17f;
+        TEST_CHECK(neg / -0.02) == 0.5e+20;
     }
 
     TEST_SUITE(test_integer_float)
