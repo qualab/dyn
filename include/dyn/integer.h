@@ -363,6 +363,17 @@ namespace dyn
     inline bool operator == (std::uint16_t left, const integer& right) { return integer(left) == right; }
     inline bool operator == (std::uint8_t  left, const integer& right) { return integer(left) == right; }
 
+    inline bool operator == (const integer& left, char right) { return left == integer(right); }
+    inline bool operator == (char left, const integer& right) { return integer(left) == right; }
+
+    inline bool operator == (const integer& left, double right) { return left.cast_to<double>() == right; }
+    inline bool operator == (const integer& left, float  right) { return left.cast_to<float>()  == right; }
+    inline bool operator == (const integer& left, bool   right) { return left.cast_to<bool>()   == right; }
+
+    inline bool operator == (double left, const integer& right) { return left == right.cast_to<double>(); }
+    inline bool operator == (float  left, const integer& right) { return left == right.cast_to<float>();  }
+    inline bool operator == (bool   left, const integer& right) { return left == right.cast_to<bool>();   }
+
     inline bool operator != (const integer& left, std::int64_t right) { return left != integer(right); }
     inline bool operator != (const integer& left, std::int32_t right) { return left != integer(right); }
     inline bool operator != (const integer& left, std::int16_t right) { return left != integer(right); }
@@ -382,6 +393,17 @@ namespace dyn
     inline bool operator != (std::uint32_t left, const integer& right) { return integer(left) != right; }
     inline bool operator != (std::uint16_t left, const integer& right) { return integer(left) != right; }
     inline bool operator != (std::uint8_t  left, const integer& right) { return integer(left) != right; }
+
+    inline bool operator != (const integer& left, char right) { return left != integer(right); }
+    inline bool operator != (char left, const integer& right) { return integer(left) != right; }
+
+    inline bool operator != (const integer& left, double right) { return left.cast_to<double>() != right; }
+    inline bool operator != (const integer& left, float  right) { return left.cast_to<float>()  != right; }
+    inline bool operator != (const integer& left, bool   right) { return left.cast_to<bool>()   != right; }
+
+    inline bool operator != (double left, const integer& right) { return left != right.cast_to<double>(); }
+    inline bool operator != (float  left, const integer& right) { return left != right.cast_to<float>();  }
+    inline bool operator != (bool   left, const integer& right) { return left != right.cast_to<bool>();   }
 
     inline bool operator >= (const integer& left, std::int64_t right) { return left >= integer(right); }
     inline bool operator >= (const integer& left, std::int32_t right) { return left >= integer(right); }
@@ -403,6 +425,17 @@ namespace dyn
     inline bool operator >= (std::uint16_t left, const integer& right) { return integer(left) >= right; }
     inline bool operator >= (std::uint8_t  left, const integer& right) { return integer(left) >= right; }
 
+    inline bool operator >= (const integer& left, char right) { return left >= integer(right); }
+    inline bool operator >= (char left, const integer& right) { return integer(left) >= right; }
+
+    inline bool operator >= (const integer& left, double right) { return left.cast_to<double>() >= right; }
+    inline bool operator >= (const integer& left, float  right) { return left.cast_to<float>()  >= right; }
+    inline bool operator >= (const integer& left, bool   right) { return left.cast_to<bool>()   >= right; }
+
+    inline bool operator >= (double left, const integer& right) { return left >= right.cast_to<double>(); }
+    inline bool operator >= (float  left, const integer& right) { return left >= right.cast_to<float>();  }
+    inline bool operator >= (bool   left, const integer& right) { return left >= right.cast_to<bool>();   }
+
     inline bool operator <= (const integer& left, std::int64_t right) { return left <= integer(right); }
     inline bool operator <= (const integer& left, std::int32_t right) { return left <= integer(right); }
     inline bool operator <= (const integer& left, std::int16_t right) { return left <= integer(right); }
@@ -422,6 +455,17 @@ namespace dyn
     inline bool operator <= (std::uint32_t left, const integer& right) { return integer(left) <= right; }
     inline bool operator <= (std::uint16_t left, const integer& right) { return integer(left) <= right; }
     inline bool operator <= (std::uint8_t  left, const integer& right) { return integer(left) <= right; }
+
+    inline bool operator <= (const integer& left, char right) { return left <= integer(right); }
+    inline bool operator <= (char left, const integer& right) { return integer(left) <= right; }
+
+    inline bool operator <= (const integer& left, double right) { return left.cast_to<double>() <= right; }
+    inline bool operator <= (const integer& left, float  right) { return left.cast_to<float>()  <= right; }
+    inline bool operator <= (const integer& left, bool   right) { return left.cast_to<bool>()   <= right; }
+
+    inline bool operator <= (double left, const integer& right) { return left <= right.cast_to<double>(); }
+    inline bool operator <= (float  left, const integer& right) { return left <= right.cast_to<float>();  }
+    inline bool operator <= (bool   left, const integer& right) { return left <= right.cast_to<bool>();   }
 
     inline bool operator > (const integer& left, std::int64_t right) { return left > integer(right); }
     inline bool operator > (const integer& left, std::int32_t right) { return left > integer(right); }
@@ -443,6 +487,17 @@ namespace dyn
     inline bool operator > (std::uint16_t left, const integer& right) { return integer(left) > right; }
     inline bool operator > (std::uint8_t  left, const integer& right) { return integer(left) > right; }
 
+    inline bool operator > (const integer& left, char right) { return left > integer(right); }
+    inline bool operator > (char left, const integer& right) { return integer(left) > right; }
+
+    inline bool operator > (const integer& left, double right) { return left.cast_to<double>() > right; }
+    inline bool operator > (const integer& left, float  right) { return left.cast_to<float>()  > right; }
+    inline bool operator > (const integer& left, bool   right) { return left.cast_to<bool>()   > right; }
+
+    inline bool operator > (double left, const integer& right) { return left > right.cast_to<double>(); }
+    inline bool operator > (float  left, const integer& right) { return left > right.cast_to<float>();  }
+    inline bool operator > (bool   left, const integer& right) { return left > right.cast_to<bool>();   }
+
     inline bool operator < (const integer& left, std::int64_t right) { return left < integer(right); }
     inline bool operator < (const integer& left, std::int32_t right) { return left < integer(right); }
     inline bool operator < (const integer& left, std::int16_t right) { return left < integer(right); }
@@ -462,6 +517,17 @@ namespace dyn
     inline bool operator < (std::uint32_t left, const integer& right) { return integer(left) < right; }
     inline bool operator < (std::uint16_t left, const integer& right) { return integer(left) < right; }
     inline bool operator < (std::uint8_t  left, const integer& right) { return integer(left) < right; }
+
+    inline bool operator < (const integer& left, char right) { return left < integer(right); }
+    inline bool operator < (char left, const integer& right) { return integer(left) < right; }
+
+    inline bool operator < (const integer& left, double right) { return left.cast_to<double>() < right; }
+    inline bool operator < (const integer& left, float  right) { return left.cast_to<float>() < right; }
+    inline bool operator < (const integer& left, bool   right) { return left.cast_to<bool>() < right; }
+
+    inline bool operator < (double left, const integer& right) { return left < right.cast_to<double>(); }
+    inline bool operator < (float  left, const integer& right) { return left < right.cast_to<float>(); }
+    inline bool operator < (bool   left, const integer& right) { return left < right.cast_to<bool>(); }
 
     inline integer operator + (const integer& left, std::int64_t right) { return left + integer(right); }
     inline integer operator + (const integer& left, std::int32_t right) { return left + integer(right); }
@@ -483,6 +549,12 @@ namespace dyn
     inline integer operator + (std::uint16_t left, const integer& right) { return integer(left) + right; }
     inline integer operator + (std::uint8_t  left, const integer& right) { return integer(left) + right; }
 
+    inline double operator + (const integer& left, double right) { return left.cast_to<double>() + right; }
+    inline float  operator + (const integer& left, float  right) { return left.cast_to<float>()  + right; }
+
+    inline double operator + (double left, const integer& right) { return left + right.cast_to<double>(); }
+    inline float  operator + (float  left, const integer& right) { return left + right.cast_to<float>();  }
+
     inline integer operator - (const integer& left, std::int64_t right) { return left - integer(right); }
     inline integer operator - (const integer& left, std::int32_t right) { return left - integer(right); }
     inline integer operator - (const integer& left, std::int16_t right) { return left - integer(right); }
@@ -502,6 +574,12 @@ namespace dyn
     inline integer operator - (std::uint32_t left, const integer& right) { return integer(left) - right; }
     inline integer operator - (std::uint16_t left, const integer& right) { return integer(left) - right; }
     inline integer operator - (std::uint8_t  left, const integer& right) { return integer(left) - right; }
+
+    inline double operator - (const integer& left, double right) { return left.cast_to<double>() - right; }
+    inline float  operator - (const integer& left, float  right) { return left.cast_to<float>()  - right; }
+
+    inline double operator - (double left, const integer& right) { return left - right.cast_to<double>(); }
+    inline float  operator - (float  left, const integer& right) { return left - right.cast_to<float>();  }
 
     inline integer operator * (const integer& left, std::int64_t right) { return left * integer(right); }
     inline integer operator * (const integer& left, std::int32_t right) { return left * integer(right); }
@@ -523,6 +601,12 @@ namespace dyn
     inline integer operator * (std::uint16_t left, const integer& right) { return integer(left) * right; }
     inline integer operator * (std::uint8_t  left, const integer& right) { return integer(left) * right; }
 
+    inline double operator * (const integer& left, double right) { return left.cast_to<double>() * right; }
+    inline float  operator * (const integer& left, float  right) { return left.cast_to<float>()  * right; }
+
+    inline double operator * (double left, const integer& right) { return left * right.cast_to<double>(); }
+    inline float  operator * (float  left, const integer& right) { return left * right.cast_to<float>();  }
+
     inline integer operator / (const integer& left, std::int64_t right) { return left / integer(right); }
     inline integer operator / (const integer& left, std::int32_t right) { return left / integer(right); }
     inline integer operator / (const integer& left, std::int16_t right) { return left / integer(right); }
@@ -542,6 +626,12 @@ namespace dyn
     inline integer operator / (std::uint32_t left, const integer& right) { return integer(left) / right; }
     inline integer operator / (std::uint16_t left, const integer& right) { return integer(left) / right; }
     inline integer operator / (std::uint8_t  left, const integer& right) { return integer(left) / right; }
+
+    inline double operator / (const integer& left, double right) { return left.cast_to<double>() / right; }
+    inline float  operator / (const integer& left, float  right) { return left.cast_to<float>()  / right; }
+
+    inline double operator / (double left, const integer& right) { return left / right.cast_to<double>(); }
+    inline float  operator / (float  left, const integer& right) { return left / right.cast_to<float>();  }
 
     inline integer operator & (const integer& left, std::int64_t right) { return left & integer(right); }
     inline integer operator & (const integer& left, std::int32_t right) { return left & integer(right); }
