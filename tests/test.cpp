@@ -49,20 +49,45 @@ namespace dyn
         static const std::string DEFAULT_NAME = "testing";
         static const std::string RUN_DELIMITER = " - - -\n";
         const std::string& name = run_name.empty() ? DEFAULT_NAME : run_name;
+
+        struct test_run_results
+        {
+            bool        test_run_OK;
+            size_t      test_suites_run_count;
+            size_t      test_check_failure_count;
+            size_t      test_suite_failure_count;
+            size_t      test_suite_interruption_count;
+            std::string test_run_interrupted_at;
+
+            test_run_results()
+                : test_run_OK(true),
+                  test_suites_run_count(0),
+                  test_check_failure_count(0),
+                  test_suite_failure_count(0),
+                  test_suite_interruption_count(0),
+                  test_run_interrupted_at()
+            {
+            }
+        } results;
+
         output() << "TEST RUN '" << name << "'\n" << RUN_DELIMITER;
         std::find_if(test_suites.begin(), test_suites.end(),
             // return true to terminate test run
             [&](test::suite* current_suite)
             {
-                bool stop_run = false;
                 output() << "RUNNING " << current_suite->name() << " - ";
+                bool test_run_is_interrupted = false;
+                bool test_suite_interruption = true;
                 try
                 {
+                    ++results.test_suites_run_count;
                     current_suite->scope_run();
+                    test_suite_interruption = false;
                 }
                 catch (test::fatal_error&)
                 {
-                    stop_run = true;
+                    test_run_is_interrupted = true;
+                    results.test_run_interrupted_at = current_suite->name();
                 }
                 catch (test::error&)
                 {
@@ -81,6 +106,12 @@ namespace dyn
                 }
                 else
                 {
+                    results.test_run_OK = false;
+                    results.test_check_failure_count += test_fails.size();
+                    ++results.test_suite_failure_count;
+                    if (test_suite_interruption)
+                        ++results.test_suite_interruption_count;
+
                     output() << test_fails.back()->label();
                     std::for_each(test_fails.begin(), test_fails.end(),
                         [&](const std::unique_ptr<const test::fail>& failure)
@@ -91,10 +122,27 @@ namespace dyn
                     test_fails.clear();
                 }
                 output() << std::endl;
-                return stop_run;
+                return test_run_is_interrupted;
             }
         );
         output() << RUN_DELIMITER;
+        output() << "TEST RUN (test suites: " << results.test_suites_run_count << ") - "
+                 << (results.test_run_OK ? "OK" : "FAIL");
+        if (!results.test_run_interrupted_at.empty())
+        {
+            output() << "\n !> INTERRUPTED AT: " << results.test_run_interrupted_at;
+            output() << "\n !> Test suite expected to run: " << test_suites.size();
+        }
+        if (results.test_check_failure_count)
+        {
+            output() << "\n !> Test check failure count: " << results.test_check_failure_count;
+            output() << "\n !> Test suite failure count: " << results.test_suite_failure_count;
+            if (results.test_suite_interruption_count)
+            {
+                output() << "\n !> Test suite interruption count: " << results.test_suite_interruption_count;
+            }
+        }
+        output() << "\n" << RUN_DELIMITER << std::flush;
     }
 
     test::suite::suite()

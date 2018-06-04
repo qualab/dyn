@@ -87,9 +87,9 @@ namespace dyn
         integer y = -23456789012345678LL;
         TEST_CHECK(x + y) == 100000000000000000uLL;
         integer z = 12345678901234567890uLL;
-        TEST_CHECK([z]() { z + z; }).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK_OPERATION(z + z).expect_exception<integer::arithmetic_overflow_exception>();
         integer U64max = std::numeric_limits<std::uint64_t>::max();
-        TEST_CHECK([U64max]() { U64max + 1; }).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK_OPERATION(U64max + 1).expect_exception<integer::arithmetic_overflow_exception>();
         integer I64min = std::numeric_limits<std::int64_t>::min();
         integer I64max = std::numeric_limits<std::int64_t>::max();
         TEST_CHECK(U64max + I64min) == std::numeric_limits<std::int64_t>::max();
@@ -101,7 +101,7 @@ namespace dyn
         integer neg = -1000000000000000000LL;
         TEST_CHECK(big + neg) == 9000000000000000000LL;
         TEST_CHECK(neg + big) == 9000000000000000000LL;
-        TEST_CHECK([big]() { big + big; }).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK_OPERATION(big + big).expect_exception<integer::arithmetic_overflow_exception>();
         TEST_CHECK(neg + neg) == -2000000000000000000LL;
     }
 
@@ -115,13 +115,13 @@ namespace dyn
         TEST_CHECK(o - o) == 0;
         integer I64min = std::numeric_limits<std::int64_t>::min();
         integer I64max = std::numeric_limits<std::int64_t>::max();
-        TEST_CHECK([I64min]() { I64min - 1; }).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK_OPERATION(I64min - 1).expect_exception<integer::arithmetic_overflow_exception>();
         TEST_CHECK(I64max - l) == I64max - 1;
         TEST_CHECK(1 - I64max) == l - I64max;
         integer big = 10000000000000000000uLL;
         integer neg = -1000000000000000000LL;
         TEST_CHECK(big - neg) == 11000000000000000000uLL;
-        TEST_CHECK([=]() { neg - big; }).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK_OPERATION(neg - big).expect_exception<integer::arithmetic_overflow_exception>();
         TEST_CHECK(big - big) == 0;
         TEST_CHECK(neg - neg) == 0;
         integer bigP1 = big + 1;
@@ -146,7 +146,7 @@ namespace dyn
         TEST_CHECK(-I64max) == -std::numeric_limits<std::int64_t>::max();
         integer big = 10000000000000000000uLL;
         integer neg = -1000000000000000000LL;
-        TEST_CHECK([big]() { -big; }).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK_OPERATION(-big).expect_exception<integer::arithmetic_overflow_exception>();
         TEST_CHECK(-neg) == 1000000000000000000LL;
     }
 
@@ -162,7 +162,14 @@ namespace dyn
         TEST_CHECK(m * l) == -1;
         TEST_CHECK(l * m) == -1;
         TEST_CHECK(m * m) == 1;
-		integer I64min = std::numeric_limits<std::int64_t>::min();
+        integer U64max = std::numeric_limits<std::uint64_t>::max();
+        TEST_CHECK(U64max * 1) == std::numeric_limits<std::uint64_t>::max();
+        TEST_CHECK(1 * U64max) == std::numeric_limits<std::uint64_t>::max();
+        TEST_CHECK(U64max * 0) == 0;
+        TEST_CHECK(0 * U64max) == 0;
+        TEST_CHECK_OPERATION(U64max * (-1)).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK_OPERATION(-1 * U64max).expect_exception<integer::arithmetic_overflow_exception>();
+        integer I64min = std::numeric_limits<std::int64_t>::min();
 		integer I64max = std::numeric_limits<std::int64_t>::max();
 		TEST_CHECK(I64min * 1) == std::numeric_limits<std::int64_t>::min();
 		TEST_CHECK(-1 * I64min) == static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::min());
@@ -177,19 +184,43 @@ namespace dyn
 		integer U32max = std::numeric_limits<std::uint32_t>::max();
 		integer U32lim = 1uLL << 32;
 		TEST_CHECK(U32max * U32max) == (1uLL << 33) * ((1uLL << 31) - 1) + 1;
-		TEST_CHECK([U32lim]() { U32lim * U32lim; }).expect_exception<integer::arithmetic_overflow_exception>();
+		TEST_CHECK_OPERATION(U32lim * U32lim).expect_exception<integer::arithmetic_overflow_exception>();
 		TEST_CHECK(U32max * U32lim) == (1uLL << 32) * ((1uLL << 32) - 1);
 		integer big = 10000000000000000000uLL;
 		integer neg = -1000000000000000000LL;
-		TEST_CHECK([=]() { big * neg; }).expect_exception<integer::arithmetic_overflow_exception>();
+		TEST_CHECK_OPERATION(big * neg).expect_exception<integer::arithmetic_overflow_exception>();
 		TEST_CHECK(big * 1) == 10000000000000000000uLL;
         TEST_CHECK(big * 0) == 0;
-        TEST_CHECK([big]() { big * 10; }).expect_exception<integer::arithmetic_overflow_exception>();
-		TEST_CHECK([big]() { big * (-1); }).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK_OPERATION(big * 10).expect_exception<integer::arithmetic_overflow_exception>();
+		TEST_CHECK_OPERATION(big * (-1)).expect_exception<integer::arithmetic_overflow_exception>();
 		TEST_CHECK(1 * neg) == -1000000000000000000LL;
-		TEST_CHECK([neg]() { 10 * neg; }).expect_exception<integer::arithmetic_overflow_exception>();
+		TEST_CHECK_OPERATION(10 * neg).expect_exception<integer::arithmetic_overflow_exception>();
 		TEST_CHECK(-10 * neg) == 10000000000000000000uLL;
 	}
+
+    TEST_SUITE(test_integer_division)
+    {
+        integer o = 0;
+        integer l = 1;
+        integer m = -1;
+        TEST_CHECK(o / l) == 0;
+        TEST_CHECK_OPERATION(l / o).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK(o / m) == 0;
+        TEST_CHECK_OPERATION(m / o).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK(l / m) == -1;
+        TEST_CHECK(m / l) == -1;
+        TEST_CHECK(l / l) == 1;
+        TEST_CHECK(m / m) == 1;
+        TEST_CHECK_OPERATION(o / o).expect_exception<integer::arithmetic_overflow_exception>();
+        integer I64min = std::numeric_limits<std::int64_t>::min();
+        integer I64max = std::numeric_limits<std::int64_t>::max();
+        TEST_CHECK(I64max / I64min) == 0;
+        TEST_CHECK(I64min / I64max) == -1;
+        TEST_CHECK(I64max / 1) == std::numeric_limits<std::int64_t>::max();
+        TEST_CHECK(I64min / 1) == std::numeric_limits<std::int64_t>::min();
+        TEST_CHECK(I64max / 128) == (1LL << 56) - 1;
+        TEST_CHECK(I64min / 32) == -(1LL << 58);
+    }
 
     TEST_SUITE(test_integer_float)
     {
@@ -215,8 +246,8 @@ namespace dyn
         TEST_CHECK(x) == -60000100;
         x = 9.99999e+18f;
         TEST_CHECK(x) == 9999990000000000000uLL;
-        TEST_CHECK([&x]() { x = 1.0e+20f; }).expect_exception<integer::out_of_range_exception_of<float>>();
-        TEST_CHECK([&x]() { x = -9.9e+18f; }).expect_exception<integer::out_of_range_exception_of<float>>();
+        TEST_CHECK_OPERATION(x = 1.0e+20f).expect_exception<integer::out_of_range_exception_of<float>>();
+        TEST_CHECK_OPERATION(x = -9.9e+18f).expect_exception<integer::out_of_range_exception_of<float>>();
         x = 0.0f;
         TEST_CHECK(x) == 0;
         x = 1.0f;
@@ -247,8 +278,8 @@ namespace dyn
         TEST_CHECK(x) == -500000000000001000LL;
         x = 9.99999999999999e+18;
         TEST_CHECK(x) == 9999999999999990000uLL;
-        TEST_CHECK([&x]() { x = 1.0e+20; }).expect_exception<integer::out_of_range_exception_of<double>>();
-        TEST_CHECK([&x]() { x = -9.9e+18; }).expect_exception<integer::out_of_range_exception_of<double>>();
+        TEST_CHECK_OPERATION(x = 1.0e+20).expect_exception<integer::out_of_range_exception_of<double>>();
+        TEST_CHECK_OPERATION(x = -9.9e+18).expect_exception<integer::out_of_range_exception_of<double>>();
         x = 0.123;
         TEST_CHECK(x) == 0;
         x = 3.14159265358979e+14;

@@ -214,6 +214,10 @@ void test_suite_##suite_name::run()
 #define TEST_CRITICAL_CHECK(argument) test::make_check<test::error>(argument, __FILE__, __LINE__)
 #define TEST_RUN_CRITICAL_CHECK(argument) test::make_check<test::fatal_error>(argument, __FILE__, __LINE__)
 
+#define TEST_CHECK_OPERATION(operation) TEST_CHECK([&]() { operation; })
+#define TEST_CRITICAL_CHECK_OPERATION(operation) TEST_CRITICAL_CHECK([&]() { operation; })
+#define TEST_RUN_CRITICAL_CHECK_OPERATION(operation) TEST_RUN_CRITICAL_CHECK([&]() { operation; })
+
     class test::fail : public dyn::exception
     {
     public:
