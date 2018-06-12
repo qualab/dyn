@@ -29,9 +29,7 @@ namespace dyn
         TEST_CHECK(t.shared_count()) == 3;
         TEST_CHECK(c.shared_count()) == t.shared_count();
         TEST_CHECK(s.shared_count()) == t.shared_count();
-        TEST_CRITICAL_CHECK([&t]() {
-            t->at(t->size() - 1u) = '?';
-        }).no_exception();
+        TEST_CHECK_OPERATION(t->at(t->size() - 1u) = '?').no_exception();
         TEST_CHECK(t.const_instance()) == "Who is your daddy??";
         TEST_CHECK(s.const_instance()) == "Who is your daddy?!";
         TEST_CHECK(t.is_unique()).is_true();

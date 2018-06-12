@@ -12,9 +12,8 @@ namespace dyn
         TEST_CHECK(i) == 1234;
         TEST_CHECK(i) > 1233;
         TEST_CHECK(i) < 1235;
-        TEST_CHECK([i]() {
-            i.get<float>();
-        }).expect_exception<object::representation_exception_of<scalar<float>::data>>();
+        TEST_CHECK_OPERATION(i.get<float>()).expect_exception<
+            object::representation_exception_of<scalar<float>::data>>();
         TEST_CHECK(i).is_true();
         TEST_CHECK(i.get<int>()) == 1234;
     }
@@ -29,9 +28,8 @@ namespace dyn
         TEST_CHECK(f) <= 56.79f;
         TEST_CHECK(f).is_true();
         TEST_CHECK(f.get<float>()) == 56.789f;
-        TEST_CHECK([f]() {
-            f.get<int>();
-        }).expect_exception<object::representation_exception_of<scalar<int>::data>>();
+        TEST_CHECK_OPERATION(f.get<int>()).expect_exception<
+            object::representation_exception_of<scalar<int>::data>>();
     }
 
     TEST_SUITE(test_scalar_bool)
@@ -50,9 +48,8 @@ namespace dyn
         scalar<unsigned long long> u = 1234567890uLL;
         TEST_CHECK(u) == 1234567890uLL;
         TEST_CHECK(u.get<unsigned long long>()) == 1234567890uLL;
-        TEST_CHECK([u]() {
-            u.get<long long>();
-        }).expect_exception<object::representation_exception_of<scalar<long long>::data>>();
+        TEST_CHECK_OPERATION(u.get<long long>()).expect_exception<
+            object::representation_exception_of<scalar<long long>::data>>();
     }
 
     TEST_SUITE(test_scalar_char)
@@ -62,9 +59,8 @@ namespace dyn
         TEST_CHECK(c) > '\0';
         TEST_CHECK(c) < '0';
         TEST_CHECK(c.get<char>()) == '*';
-        TEST_CHECK([c]() {
-            c.get<unsigned char>();
-        }).expect_exception<object::representation_exception_of<scalar<unsigned char>::data>>();
+        TEST_CHECK_OPERATION(c.get<unsigned char>()).expect_exception<
+            object::representation_exception_of<scalar<unsigned char>::data>>();
     }
 
     struct biggest_good
@@ -81,9 +77,7 @@ namespace dyn
 
     TEST_SUITE(test_scalar_biggest_data)
     {
-        TEST_CHECK([]() {
-            scalar<biggest_good> good;
-        }).no_exception();
+        TEST_CHECK_OPERATION(scalar<biggest_good> good).no_exception();
     }
 }
 
