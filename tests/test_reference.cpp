@@ -51,6 +51,9 @@ namespace dyn
         static int const_calls;
     };
 
+    template<> const char* const reference<release_checker>::class_name = "reference<release_checker>";
+    template<> const char* const reference<release_checker>::data::class_name = "reference<release_checker>::data";
+
 	inline std::ostream& operator << (std::ostream& output, const release_checker&)
 	{
 		return output;

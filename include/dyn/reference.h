@@ -39,6 +39,9 @@ namespace dyn
 
         class null_reference_exception;
 
+        static const char* const class_name;
+        virtual const char* const get_class_name() const override;
+
     private:
         data* m_data;
     };
@@ -66,6 +69,9 @@ namespace dyn
 
 		virtual void output(std::ostream& stream) const;
 
+        static const char* const class_name;
+        virtual const char* const get_class_name() const override;
+
     private:
         std::shared_ptr<instance_type> m_instance;
     };
@@ -76,6 +82,16 @@ namespace dyn
     public:
         const char* what() const override;
     };
+
+    template<> const char* const reference<std::string>::class_name = "reference<string>";
+    template<> const char* const reference<std::wstring>::class_name = "reference<wstring>";
+    template<> const char* const reference<std::u16string>::class_name = "reference<u16string>";
+    template<> const char* const reference<std::u32string>::class_name = "reference<u32string>";
+
+    template<> const char* const reference<std::string>::data::class_name = "reference<string>::data";
+    template<> const char* const reference<std::wstring>::data::class_name = "reference<wstring>::data";
+    template<> const char* const reference<std::u16string>::data::class_name = "reference<u16string>::data";
+    template<> const char* const reference<std::u32string>::data::class_name = "reference<u32string>::data";
 
     template <typename instance_type>
     template <typename... argument_types>
@@ -146,6 +162,12 @@ namespace dyn
     int reference<instance_type>::shared_count() const
     {
         return m_data->shared_count();
+    }
+
+    template <typename instance_type>
+    const char* const reference<instance_type>::get_class_name() const
+    {
+        return class_name;
     }
 
     template <typename instance_type>
@@ -225,6 +247,12 @@ namespace dyn
 	{
 		stream << *get_shared();
 	}
+
+    template <typename instance_type>
+    const char* const reference<instance_type>::data::get_class_name() const
+    {
+        return class_name;
+    }
 
     template <typename instance_type>
     const char* reference<instance_type>::null_reference_exception::what() const

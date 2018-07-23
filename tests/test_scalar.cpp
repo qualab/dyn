@@ -67,6 +67,9 @@ namespace dyn
         operator bool() const { return true; }
     };
 
+    template<> const char* const scalar<biggest_good>::class_name = "scalar<biggest_good>";
+    template<> const char* const scalar<biggest_good>::data::class_name = "scalar<biggest_good>::data";
+
     template<> object& object::operator = (const biggest_good&) { return *this; }
 
     std::ostream& operator << (std::ostream& output, const biggest_good&) { return output; }

@@ -80,6 +80,9 @@ namespace dyn
 
         class data;
 
+        static const char* const class_name;
+        virtual const char* const get_class_name() const override;
+
     private:
         data* m_data;
     };
@@ -102,6 +105,9 @@ namespace dyn
 
         const value_type& value() const;
         value_type& value();
+
+        static const char* const class_name;
+        virtual const char* const get_class_name() const override;
 
     private:
         value_type m_value;
@@ -172,6 +178,12 @@ namespace dyn
     value_type& scalar<value_type>::value()
     {
         return m_data->value();
+    }
+
+    template <typename value_type>
+    const char* const scalar<value_type>::get_class_name() const
+    {
+        return class_name;
     }
 
     template <typename value_type>
@@ -445,6 +457,44 @@ namespace dyn
     {
         return m_value;
     }
+
+    template <typename value_type>
+    const char* const scalar<value_type>::data::get_class_name() const
+    {
+        return class_name;
+    }
+
+    template<> const char* const scalar<int64>::class_name = "scalar<int64>";
+    template<> const char* const scalar<int32>::class_name = "scalar<int32>";
+    template<> const char* const scalar<int16>::class_name = "scalar<int16>";
+    template<> const char* const scalar<int8>::class_name = "scalar<int8>";
+
+    template<> const char* const scalar<uint64>::class_name = "scalar<uint64>";
+    template<> const char* const scalar<uint32>::class_name = "scalar<uint32>";
+    template<> const char* const scalar<uint16>::class_name = "scalar<uint16>";
+    template<> const char* const scalar<uint8>::class_name = "scalar<uint8>";
+
+    template<> const char* const scalar<double>::class_name = "scalar<double>";
+    template<> const char* const scalar<float>::class_name = "scalar<float>";
+
+    template<> const char* const scalar<bool>::class_name = "scalar<bool>";
+    template<> const char* const scalar<char>::class_name = "scalar<char>";
+
+    template<> const char* const scalar<int64>::data::class_name = "scalar<int64>::data";
+    template<> const char* const scalar<int32>::data::class_name = "scalar<int32>::data";
+    template<> const char* const scalar<int16>::data::class_name = "scalar<int16>::data";
+    template<> const char* const scalar<int8>::data::class_name = "scalar<int8>::data";
+
+    template<> const char* const scalar<uint64>::data::class_name = "scalar<uint64>::data";
+    template<> const char* const scalar<uint32>::data::class_name = "scalar<uint32>::data";
+    template<> const char* const scalar<uint16>::data::class_name = "scalar<uint16>::data";
+    template<> const char* const scalar<uint8>::data::class_name = "scalar<uint8>::data";
+
+    template<> const char* const scalar<double>::data::class_name = "scalar<double>::data";
+    template<> const char* const scalar<float>::data::class_name = "scalar<float>::data";
+
+    template<> const char* const scalar<bool>::data::class_name = "scalar<bool>::data";
+    template<> const char* const scalar<char>::data::class_name = "scalar<char>::data";
 }
 
 // Unicode signature: Владимир Керимов
