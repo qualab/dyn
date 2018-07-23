@@ -1,4 +1,4 @@
-﻿// trace mechanism based on stacked scopes
+﻿// Trace mechanism based on stacked scopes
 
 #pragma once
 

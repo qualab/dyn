@@ -18,6 +18,7 @@
     <ClInclude Include="..\..\..\include\dyn\reference.h" />
     <ClInclude Include="..\..\..\include\dyn\scalar.h" />
     <ClInclude Include="..\..\..\include\dyn\trace.h" />
+    <ClInclude Include="..\..\..\include\dyn\type.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\sources\exception.cpp" />

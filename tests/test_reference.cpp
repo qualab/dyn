@@ -51,6 +51,11 @@ namespace dyn
         static int const_calls;
     };
 
+	inline std::ostream& operator << (std::ostream& output, const release_checker&)
+	{
+		return output;
+	}
+
     int release_checker::staying_alive = 0;
     int release_checker::nonconst_calls = 0;
     int release_checker::const_calls = 0;

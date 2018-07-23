@@ -253,6 +253,24 @@ namespace dyn
         TEST_CHECK(neg / -0.02) == 0.5e+20;
     }
 
+    TEST_SUITE(test_integer_module)
+    {
+        integer o = 0;
+        integer l = 1;
+        integer ll = 2;
+        integer lll = 3;
+        integer lv = 4;
+        integer v = 5;
+        TEST_CHECK(o % l) == 0;
+        TEST_CHECK_OPERATION(l % o).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK_OPERATION(o % o).expect_exception<integer::arithmetic_overflow_exception>();
+        TEST_CHECK(l % ll) == 1;
+        TEST_CHECK(ll % lv) == 0;
+        TEST_CHECK(lll % ll) == 1;
+        TEST_CHECK(lv % v) == 4;
+        TEST_CHECK(v % lll) == 2;
+    }
+
     TEST_SUITE(test_integer_float)
     {
         integer x(0.5f);

@@ -32,12 +32,24 @@ namespace dyn
         bool is_null() const;
         bool is_not_null() const;
 
+        template <typename derived_type>
+        bool is() const;
+
+        template <typename derived_type>
+        bool is_not() const;
+
+        template <typename derived_type>
+        derived_type& as();
+
+        template <typename derived_type>
+        const derived_type& as() const;
+
         template <typename value_type>
         object(const value_type& value);
 
         template <typename value_type>
         object& operator = (const value_type& value);
- 
+
         class data;
 
 		const data* get_data() const;
@@ -49,6 +61,7 @@ namespace dyn
 		template <typename derived_data_type>
 		derived_data_type& data_as();
 
+		virtual void output(std::ostream& stream) const;
 		virtual void output_data(std::ostream& stream) const;
 
         bool operator ! () const;
@@ -63,14 +76,9 @@ namespace dyn
         static const size_t max_data_size = DYN_OBJECT_MAX_DATA_SIZE;
 
         class exception;
-        class data_size_exception;
-        class representation_exception;
 
-        template <typename derived_data_type>
-        class data_size_exception_of;
-
-        template <typename derived_data_type>
-        class representation_exception_of;
+        static const char* const class_name;
+        virtual const char* const get_class_name() const;
 
     protected:
         template <typename derived_data_type, typename... arg_list>
@@ -95,48 +103,63 @@ namespace dyn
         virtual data* move_to(void*) = 0;
         virtual data* copy_to(void*) = 0;
 
-        virtual const char* name() const;
+        template <typename derived_data_type>
+        bool is() const;
+
+        template <typename derived_data_type>
+        bool is_not() const;
+
+        template <typename derived_data_type>
+		derived_data_type& as();
+
+		template <typename derived_data_type>
+		const derived_data_type& as() const;
 
         virtual bool as_bool() const;
-        virtual void output(std::ostream& stream) const;
+        virtual void output(std::ostream& stream) const = 0;
 
-        static const size_t max_fields_size = max_data_size - sizeof(void*);
+        static const char* const class_name;
+        virtual const char* const get_class_name() const;
     };
 
-    class DYN_PUBLIC object::exception : public dyn::exception
+	DYN_PUBLIC std::ostream& operator << (std::ostream& stream, const object::data& argument);
+
+    class object::exception : public dyn::exception
     {
     public:
         typedef dyn::exception base;
-        exception(const std::string& message);
+
+        explicit exception(const std::string& message);
+
+        static const char* const class_name;
+        virtual const char* const get_class_name() const;
     };
 
-    class DYN_PUBLIC object::data_size_exception : public object::exception
+    // object base class "is_class" template specification
+
+    template <>
+    struct is_class<object>
     {
-    public:
-        typedef object::exception base;
-        data_size_exception();
-    };
- 
-    class DYN_PUBLIC object::representation_exception : public object::exception
-    {
-    public:
-        typedef object::exception base;
-        representation_exception();
+        template <typename base_type>
+        static bool of()
+        {
+            return object::class_name == base_type::class_name;
+        }
     };
 
-    template <typename derived_data>
-    class object::data_size_exception_of : public object::data_size_exception
+    // object data base class "is_class" template specification
+
+    template <>
+    struct is_class<object::data>
     {
-    public:
-        typedef object::data_size_exception base;
+        template <typename base_type>
+        static bool of()
+        {
+            return object::data::class_name == base_type::class_name;
+        }
     };
 
-    template <typename value_type>
-    class object::representation_exception_of : public object::representation_exception
-    {
-    public:
-        typedef object::representation_exception base;
-    };
+    // implementation of template methods
 
     template <typename value_type>
     object::object(const value_type& value)
@@ -177,29 +200,78 @@ namespace dyn
     template <typename derived_data_type>
     const derived_data_type& object::data_as() const
     {
-        const derived_data_type* derived_data = dynamic_cast<const derived_data_type*>(m_data);
-        if (!derived_data)
-            throw representation_exception_of<derived_data_type>();
-        return *derived_data;
+        if (!m_data)
+            throw typecast_exception("Unable to cast data of null object to any data type.");
+        return typecast_to<derived_data_type>::from(*m_data);
     }
 
     template <typename derived_data_type>
     derived_data_type& object::data_as()
     {
-        return const_cast<derived_data_type&>(static_cast<const object*>(this)->data_as<derived_data_type>());
+        return const_cast<derived_data_type&>(
+            static_cast<const object*>(this)->data_as<derived_data_type>()
+        );
     }
 
-    template<> DYN_PUBLIC object& object::operator = (const bool& value);
+    template <typename derived_type>
+    bool object::is() const
+    {
+        return object::is_instance(*this).of<derived_type>();
+    }
 
-    template<> DYN_PUBLIC object& object::operator = (const std::int64_t& value);
-    template<> DYN_PUBLIC object& object::operator = (const std::int32_t& value);
-    template<> DYN_PUBLIC object& object::operator = (const std::int16_t& value);
-    template<> DYN_PUBLIC object& object::operator = (const std::int8_t& value);
+    template <typename derived_type>
+    bool object::is_not() const
+    {
+        return !is<derived_type>();
+    }
 
-    template<> DYN_PUBLIC object& object::operator = (const std::uint64_t& value);
-    template<> DYN_PUBLIC object& object::operator = (const std::uint32_t& value);
-    template<> DYN_PUBLIC object& object::operator = (const std::uint16_t& value);
-    template<> DYN_PUBLIC object& object::operator = (const std::uint8_t& value);
+    template <typename derived_type>
+    derived_type& object::as()
+    {
+        return typecast_to<derived_type>::from(*this);
+    }
+
+    template <typename derived_type>
+    const derived_type& object::as() const
+    {
+        return typecast_to<derived_type>::from(*this);
+    }
+
+    template <typename derived_type>
+	bool object::data::is() const
+	{
+        return is_instance(*this).of<derived_type>();
+	}
+
+    template <typename derived_type>
+    bool object::data::is_not() const
+    {
+        return !is<derived_type>();
+    }
+
+    template <typename derived_type>
+	const derived_type& object::data::as() const
+	{
+		return typecast_to<derived_type>::from(*this);
+	}
+
+	template <typename derived_type>
+	derived_type& object::data::as()
+	{
+        return typecast_to<derived_type>::from(*this);
+    }
+
+	template<> DYN_PUBLIC object& object::operator = (const bool& value);
+
+    template<> DYN_PUBLIC object& object::operator = (const int64& value);
+    template<> DYN_PUBLIC object& object::operator = (const int32& value);
+    template<> DYN_PUBLIC object& object::operator = (const int16& value);
+    template<> DYN_PUBLIC object& object::operator = (const int8& value);
+
+    template<> DYN_PUBLIC object& object::operator = (const uint64& value);
+    template<> DYN_PUBLIC object& object::operator = (const uint32& value);
+    template<> DYN_PUBLIC object& object::operator = (const uint16& value);
+    template<> DYN_PUBLIC object& object::operator = (const uint8& value);
 
     template<> DYN_PUBLIC object& object::operator = (const double& value);
     template<> DYN_PUBLIC object& object::operator = (const float& value);
@@ -222,15 +294,15 @@ namespace dyn
 
     template<> DYN_PUBLIC const bool& object::get<bool>() const;
 
-    template<> DYN_PUBLIC const std::int64_t& object::get<std::int64_t>() const;
-    template<> DYN_PUBLIC const std::int32_t& object::get<std::int32_t>() const;
-    template<> DYN_PUBLIC const std::int16_t& object::get<std::int16_t>() const;
-    template<> DYN_PUBLIC const std::int8_t& object::get<std::int8_t>() const;
+    template<> DYN_PUBLIC const int64& object::get<int64>() const;
+    template<> DYN_PUBLIC const int32& object::get<int32>() const;
+    template<> DYN_PUBLIC const int16& object::get<int16>() const;
+    template<> DYN_PUBLIC const int8&  object::get<int8>() const;
 
-    template<> DYN_PUBLIC const std::uint64_t& object::get<std::uint64_t>() const;
-    template<> DYN_PUBLIC const std::uint32_t& object::get<std::uint32_t>() const;
-    template<> DYN_PUBLIC const std::uint16_t& object::get<std::uint16_t>() const;
-    template<> DYN_PUBLIC const std::uint8_t& object::get<std::uint8_t>() const;
+    template<> DYN_PUBLIC const uint64& object::get<uint64>() const;
+    template<> DYN_PUBLIC const uint32& object::get<uint32>() const;
+    template<> DYN_PUBLIC const uint16& object::get<uint16>() const;
+    template<> DYN_PUBLIC const uint8&  object::get<uint8>() const;
 
     template<> DYN_PUBLIC const double& object::get<double>() const;
     template<> DYN_PUBLIC const float& object::get<float>() const;

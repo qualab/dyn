@@ -12,6 +12,8 @@ namespace dyn
     class reference : public object
     {
     public:
+        typedef object base;
+
         template <typename... argument_types>
         reference(const argument_types&... arguments);
 
@@ -45,6 +47,8 @@ namespace dyn
     class reference<instance_type>::data : public object::data
     {
     public:
+        typedef object::data base;
+
         template <typename... argument_types>
         data(const argument_types&... arguments);
 
@@ -59,6 +63,8 @@ namespace dyn
 
         virtual object::data* move_to(void* buffer) override;
         virtual object::data* copy_to(void* buffer) override;
+
+		virtual void output(std::ostream& stream) const;
 
     private:
         std::shared_ptr<instance_type> m_instance;
@@ -167,7 +173,7 @@ namespace dyn
     {
     }
 
-    template <typename instance_type>
+	template <typename instance_type>
     const instance_type* reference<instance_type>::data::get_shared() const
     {
         return m_instance.get();
@@ -213,6 +219,12 @@ namespace dyn
     {
         return new(buffer) data(*this);
     }
+
+	template <typename instance_type>
+	void reference<instance_type>::data::output(std::ostream& stream) const
+	{
+		stream << *get_shared();
+	}
 
     template <typename instance_type>
     const char* reference<instance_type>::null_reference_exception::what() const

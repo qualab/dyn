@@ -7,6 +7,9 @@
 
 namespace dyn
 {
+	const char* const integer::class_name = "integer";
+	const char* const integer::data::class_name = "integer::data";
+
     integer::integer()
         : m_data(initialize<data>())
     {
@@ -670,11 +673,6 @@ namespace dyn
         return new(buffer) integer::data(*this);
     }
 
-    const char* integer::data::name() const
-    {
-        return "integer";
-    }
-
     bool integer::data::is_zero() const
     {
         return !m_unsigned && !m_signed;
@@ -1132,6 +1130,16 @@ namespace dyn
         return stream.str();
     }
 
+    const char* const integer::get_class_name() const
+    {
+        return class_name;
+    }
+
+    const char* const integer::data::get_class_name() const
+    {
+        return class_name;
+    }
+
     void integer::data::output(std::ostream& stream) const
     {
         if (m_unsigned)
@@ -1211,7 +1219,7 @@ namespace dyn
         inline std::string type_cast_message(const integer& value)
         {
             std::stringstream output;
-            output << "Integer '" << value << "' cannot be represented as type " << typeid(value_type).name();
+            output << "Integer '" << value << "' cannot be represented as type specified.";
             return output.str();
         }
     }

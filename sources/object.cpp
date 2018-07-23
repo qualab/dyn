@@ -9,6 +9,15 @@
 
 namespace dyn
 {
+	const char* const object::class_name = "object";
+    const char* const object::data::class_name = "object::data";
+    const char* const object::exception::class_name = "object::exception";
+
+	namespace
+	{
+		const char* const null_output_text = "null";
+	}
+
     object::object()
         : m_data(nullptr)
     {
@@ -76,27 +85,42 @@ namespace dyn
         return m_data;
     }
 
-    const char* object::data::name() const
-    {
-        return "data";
-    }
-
     bool object::data::as_bool() const
     {
         return true;
     }
 
-    void object::data::output(std::ostream& stream) const
+    const char* const object::data::get_class_name() const
     {
-        stream << "data{name='" << name() << "'}";
+        return class_name;
+    }
+
+    object::exception::exception(const std::string& message)
+        : base(message)
+    {
+    }
+
+    const char* const object::exception::get_class_name() const
+    {
+        return class_name;
+    }
+
+	void object::output(std::ostream& stream) const
+    {
+		stream << get_class_name() << '{';
+        output_data(stream);
+        stream << '}';
     }
 
     void object::output_data(std::ostream& stream) const
     {
-        if (m_data)
-            m_data->output(stream);
+		if (m_data)
+		{
+            stream << m_data->get_class_name() << ": ";
+			m_data->output(stream);
+		}
         else
-            stream << "null";
+            stream << null_output_text;
     }
 
     bool object::operator ! () const
@@ -114,27 +138,22 @@ namespace dyn
         return m_data ? m_data->as_bool() : false;
     }
 
+    const char* const object::get_class_name() const
+    {
+        return class_name;
+    }
+
     std::ostream& operator << (std::ostream& stream, const object& argument)
     {
-        stream << "object{";
-        argument.output_data(stream);
-        return stream << '}';
+		argument.output(stream);
+        return stream;
     }
 
-    object::exception::exception(const std::string& message)
-        : base(message)
-    {
-    }
-
-    object::data_size_exception::data_size_exception()
-        : base("Object data size is too big for object internal buffer.")
-    {
-    }
-
-    object::representation_exception::representation_exception()
-        : base("Object can not be represented by the type specified.")
-    {
-    }
+	std::ostream& operator << (std::ostream& stream, const object::data& argument)
+	{
+		argument.output(stream);
+		return stream;
+	}
 
     template <> object& object::operator = (const bool& value)
     {

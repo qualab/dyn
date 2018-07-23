@@ -51,7 +51,7 @@ namespace dyn
         template <typename value_type>
         bool is_of() const;
 
-        template <typename value_type>
+		template <typename value_type>
         value_type cast_to() const;
 
         operator std::int64_t() const;
@@ -131,6 +131,9 @@ namespace dyn
         template <typename value_type>
         class type_cast_exception_of;
 
+        static const char* const class_name;
+        virtual const char* const get_class_name() const override;
+
     private:
         data* m_data;
     };
@@ -157,8 +160,6 @@ namespace dyn
 
         virtual object::data* move_to(void* buffer) override;
         virtual object::data* copy_to(void* buffer) override;
-
-        virtual const char* name() const override;
 
         virtual bool is_zero() const;
         virtual bool is_unit() const;
@@ -208,6 +209,9 @@ namespace dyn
         virtual float as_float() const;
 
         virtual std::string as_string() const;
+
+        static const char* const class_name;
+        virtual const char* const get_class_name() const override;
 
     private:
         std::int64_t m_signed;

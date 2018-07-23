@@ -11,6 +11,8 @@ namespace dyn
     class scalar : public object
     {
     public:
+        typedef object base;
+
         scalar();
 
         scalar(const scalar& another);
@@ -86,6 +88,8 @@ namespace dyn
     class scalar<value_type>::data : public object::data
     {
     public:
+        typedef object::data base;
+
         data();
         data(value_type value);
 
@@ -427,7 +431,7 @@ namespace dyn
     template <typename value_type>
     void scalar<value_type>::data::output(std::ostream& stream) const
     {
-        stream << "scalar: " << m_value;
+        stream << m_value;
     }
 
     template <typename value_type>

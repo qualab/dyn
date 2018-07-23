@@ -6,6 +6,9 @@
 
 namespace dyn
 {
+    const char* const exception::class_name = "exception";
+    const char* const typecast_exception::class_name = "typecast_exception";
+
     exception::exception(const std::string& message)
         : base(message.c_str()), m_message(message), m_stack(trace::stack())
     {
@@ -33,10 +36,26 @@ namespace dyn
         return m_stack.front();
     }
 
+    const char* const exception::get_class_name() const
+    {
+        return class_name;
+    }
+
     std::ostream& operator << (std::ostream& output_stream, const exception& the_exception)
     {
-        output_stream << the_exception.message() << the_exception.stack();
+        output_stream << the_exception.get_class_name() << ": " 
+            << the_exception.message() << the_exception.stack();
         return output_stream;
+    }
+
+    typecast_exception::typecast_exception(const std::string& message)
+        : base(message)
+    {
+    }
+
+    const char* const typecast_exception::get_class_name() const
+    {
+        return class_name;
     }
 }
 
